@@ -11,7 +11,7 @@
       <h1>Image Resizer</h1>
       <p>
         Upload an image, select a part with known dimensions, and print the
-        entire image at 1:1 scale.
+        image at 1:1 scale.
       </p>
 
       <div class="upload-section">
@@ -34,6 +34,16 @@
 
       <div class="dimensions-section" id="dimensionsSection">
         <h3>Specify Real-World Dimensions of Selected Area</h3>
+        <div class="dimension-mode">
+          <label class="radio-label">
+            <input type="radio" name="dimensionMode" value="width" checked />
+            Enter Width
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="dimensionMode" value="height" /> Enter
+            Height
+          </label>
+        </div>
         <div class="dimension-inputs">
           <div class="input-group">
             <label for="realWidth">Width (mm):</label>
@@ -41,26 +51,37 @@
           </div>
           <div class="input-group">
             <label for="realHeight">Height (mm):</label>
-            <input type="number" id="realHeight" min="1" step="0.1" />
+            <input type="number" id="realHeight" min="1" step="0.1" disabled />
           </div>
         </div>
         <button id="scaleBtn">Scale Image</button>
         <p class="scale-note">
-          The entire image will be scaled based on the dimensions of your
-          selection.
+          Enter just one dimension, and the other will be calculated
+          automatically based on the selection's aspect ratio.
         </p>
       </div>
 
       <div class="result-section" id="resultSection">
         <h3>Ready to Print (1:1 Scale)</h3>
         <div class="print-container" id="printContainer">
-          <img id="scaledImage" alt="Scaled image will appear here" />
+          <img id="scaledImage" alt="Print-ready image will appear here" />
         </div>
         <div class="print-actions">
           <button id="printBtn">Print</button>
+          <button id="saveBtn">Save Image</button>
+          <div class="print-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="hideImageCheckbox" />
+              Hide image (print only calibration square and instructions)
+            </label>
+          </div>
           <p class="print-note">
-            Note: Disable "Fit to page" in your print dialog for accurate
-            scaling.
+            Note: ENABLE "Fit to page" in your print dialog for this
+            high-resolution image. The application will create a clean print
+            version with only the image and calibration square. The calibration
+            square has been adjusted to print at exactly 10mm when using "Fit to
+            page". For best results with no extra space, use the "Save Image"
+            button and then print the saved file.
           </p>
         </div>
       </div>

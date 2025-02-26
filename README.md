@@ -1,14 +1,16 @@
 # Image Resizer - Print to Scale
 
-A simple web application that allows you to upload an image, select a specific part of it (like a watch head) with known dimensions, and print the entire image to scale (1:1).
+A simple web application that allows you to upload an image, select a specific part of it (like a watch head) with known dimensions, and print the image at 1:1 scale.
 
 ## Features
 
 - Upload any image
 - Select a specific area of the image using click and drag
 - Specify the real-world dimensions (in millimeters) of the selected area
-- Automatically scale the entire image to print at 1:1 scale
-- Print the scaled image directly from the browser
+- Automatically scale the image to print at 1:1 scale
+- Ultra-high-resolution processing (1200 DPI) for superior print quality
+- Includes a 10mm calibration square to verify the scale
+- Print the image directly from the browser using "Fit to page"
 
 ## How to Use
 
@@ -35,12 +37,14 @@ A simple web application that allows you to upload an image, select a specific p
 5. **Scale the image**
 
    - Click the "Scale Image" button
-   - The application will calculate the correct scale to ensure the entire image is scaled proportionally
+   - The application will scale the entire image to ensure the selected area matches your specified dimensions
+   - A 10mm calibration square is added to help verify the scale
 
 6. **Print the image**
 
    - Click the "Print" button to open your browser's print dialog
-   - **Important**: Make sure to disable "Fit to page" or similar options in your print dialog to maintain the 1:1 scale
+   - **Important**: Make sure to ENABLE "Fit to page" or similar options in your print dialog
+   - Verify the scale is correct by measuring the calibration square - it should be exactly 10mm × 10mm
    - Print the image
 
 7. **Try it on**
@@ -49,8 +53,10 @@ A simple web application that allows you to upload an image, select a specific p
 ## Technical Details
 
 - The application uses HTML5 Canvas to scale the image
-- Scaling calculations are based on standard screen resolution (96 DPI)
-- The entire image is scaled based on the dimensions of the selected area
+- Ultra-high-resolution image processing at 1200 DPI for superior print quality
+- Multi-step scaling algorithm with up to three scaling passes for optimal image quality
+- Designed to work with "Fit to page" printing for convenience
+- A calibration square is included to verify the scale is correct
 - No server-side processing is required; everything happens in your browser
 - No external libraries or dependencies are needed
 
