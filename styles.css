@@ -240,23 +240,17 @@ input[type="number"] {
   }
 }
 
+/* Remove these classes as they're no longer needed */
 .dimension-mode {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 15px;
+  display: none; /* Hide instead of completely removing to avoid layout shifts */
 }
 
 .radio-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
+  display: none; /* Hide instead of completely removing */
 }
 
 .radio-label input[type="radio"] {
-  margin: 0;
-  cursor: pointer;
+  display: none; /* Hide instead of completely removing */
 }
 
 /* Add styles for the printing class */

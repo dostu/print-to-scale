@@ -34,16 +34,6 @@
 
       <div class="dimensions-section" id="dimensionsSection">
         <h3>Specify Real-World Dimensions of Selected Area</h3>
-        <div class="dimension-mode">
-          <label class="radio-label">
-            <input type="radio" name="dimensionMode" value="width" checked />
-            Enter Width
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="dimensionMode" value="height" /> Enter
-            Height
-          </label>
-        </div>
         <div class="dimension-inputs">
           <div class="input-group">
             <label for="realWidth">Width (mm):</label>
@@ -51,13 +41,13 @@
           </div>
           <div class="input-group">
             <label for="realHeight">Height (mm):</label>
-            <input type="number" id="realHeight" min="1" step="0.1" disabled />
+            <input type="number" id="realHeight" min="1" step="0.1" />
           </div>
         </div>
         <button id="scaleBtn">Scale Image</button>
         <p class="scale-note">
-          Enter just one dimension, and the other will be calculated
-          automatically based on the selection's aspect ratio.
+          Edit either width or height, and the other dimension will be
+          calculated automatically based on the selection's aspect ratio.
         </p>
       </div>
 
