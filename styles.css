@@ -893,3 +893,21 @@ footer .container {
   box-shadow: none;
   padding: 0;
 }
+
+/* Contact info styling */
+.contact-info {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.contact-info a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.contact-info a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}

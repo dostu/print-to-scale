@@ -5,6 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
     currentYearElement.textContent = new Date().getFullYear();
   }
 
+  // Google Analytics Event Tracking Function
+  function trackEvent(eventName, eventParams = {}) {
+    if (typeof gtag === 'function') {
+      gtag('event', eventName, eventParams);
+      console.log('GA Event:', eventName, eventParams);
+    }
+  }
+
   // DOM Elements
   const imageInput = document.getElementById("imageInput");
   const uploadBtn = document.getElementById("uploadBtn");
@@ -179,6 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = e.target.files[0];
         if (file) {
           originalImageType = file.type || "image/png";
+
+          // Track image upload event
+          trackEvent('image_uploaded', {
+            file_type: file.type,
+            file_size: Math.round(file.size / 1024) // Size in KB
+          });
 
           const reader = new FileReader();
           reader.onload = (event) => {
@@ -452,6 +466,13 @@ document.addEventListener("DOMContentLoaded", () => {
         hasSelection = true;
         dimensionsSection.style.display = "block";
 
+        // Track selection completed event
+        trackEvent('area_selected', {
+          selection_width: Math.round(selectionWidth),
+          selection_height: Math.round(selectionHeight),
+          device: 'mobile'
+        });
+
         // Clear any previous input values
         realWidthInput.value = "";
         realHeightInput.value = "";
@@ -654,6 +675,12 @@ document.addEventListener("DOMContentLoaded", () => {
         hasSelection = true;
         dimensionsSection.style.display = "block";
 
+        // Track selection completed event
+        trackEvent('area_selected', {
+          selection_width: Math.round(selectionWidth),
+          selection_height: Math.round(selectionHeight)
+        });
+
         // Clear any previous input values
         realWidthInput.value = "";
         realHeightInput.value = "";
@@ -750,6 +777,12 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Please enter valid dimensions (numbers greater than 0)");
       return;
     }
+
+    // Track scaling event
+    trackEvent('image_scaled', {
+      real_width_mm: realWidth,
+      real_height_mm: realHeight
+    });
 
     // Get the selection coordinates relative to the original image
     const imageNaturalWidth = uploadedImage.naturalWidth;
@@ -1151,6 +1184,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Show the result section
       resultSection.style.display = "block";
 
+      // Track successful preview generation
+      trackEvent('preview_generated', {
+        image_type: imageType,
+        is_mobile: isMobile
+      });
+
       // Scroll to result section
       // Use setTimeout to allow the browser to render the image first
       setTimeout(() => {
@@ -1173,6 +1212,9 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Please scale an image first before printing.");
       return;
     }
+
+    // Track print event
+    trackEvent('print_clicked');
 
     try {
       // Store the current image source
@@ -1334,6 +1376,9 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("No image to save");
       return;
     }
+
+    // Track save event
+    trackEvent('save_clicked');
 
     try {
       // Create a temporary link element
@@ -1605,7 +1650,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Use inline SVG directly instead of fetch
     uploadIcon.innerHTML = `<svg width="60" height="60" viewBox="0 0 24 24">
-      <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+      <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 10h7V3l-2.35 3.35z"/>
     </svg>`;
 
     // Add text description - now mentioning click functionality
