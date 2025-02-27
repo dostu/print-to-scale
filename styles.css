@@ -281,21 +281,25 @@ input[type="text"]:focus {
 .result-section {
   display: none;
   text-align: center;
-  padding: 20px;
+  padding: 0;
+  width: 100%;
 }
 
 .print-container {
-  margin: 20px auto;
+  margin: 0 auto;
   text-align: center;
   border: none;
   padding: 0;
   background-color: white;
   overflow: visible;
   box-shadow: none;
+  width: 100%;
+  max-width: 100%;
 }
 
 #scaledImage {
   max-width: 100%;
+  width: 100%;
   height: auto;
   display: block;
   margin: 0 auto;
@@ -330,7 +334,7 @@ input[type="text"]:focus {
   border-left: 4px solid var(--primary-color);
   border-radius: 4px;
   line-height: 1.5;
-  max-width: 600px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
