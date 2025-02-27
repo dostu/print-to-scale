@@ -5,19 +5,23 @@
 }
 
 :root {
-  --primary-color: #3498db;
+  --primary-color: #4a89dc;
+  --primary-hover: #5d9cec;
+  --secondary-color: #f5f7fa;
+  --border-color: #e6e9ed;
+  --success-color: #8cc152;
+  --dark-color: #434a54;
+  --light-color: #e6e9ed;
+  --font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   --primary-light: #4cc9f0;
   --primary-dark: #2980b9;
-  --secondary-color: #e74c3c;
   --accent-color: #7209b7;
-  --success-color: #4caf50;
   --warning-color: #ffd166;
   --error-color: #ef476f;
   --text-dark: #2c3e50;
   --text-light: #f5f5f5;
   --background-light: #ffffff;
   --background-off: #f5f5f5;
-  --border-color: #ddd;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.05);
@@ -26,10 +30,10 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-family);
   line-height: 1.6;
-  color: var(--text-dark);
-  background-color: var(--background-off);
+  color: var(--dark-color);
+  background-color: var(--secondary-color);
   padding: 20px;
   margin: 0;
   max-width: 1200px;
@@ -713,4 +717,36 @@ body.printing .print-container {
   opacity: 0 !important;
   position: absolute !important;
   z-index: -1 !important;
+}
+
+/* Enhanced upload button */
+.primary-cta {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primary-cta:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.primary-cta:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-icon {
+  margin-right: 8px;
 }
