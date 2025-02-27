@@ -6,272 +6,193 @@
     <title>
       Print to Scale - Print Images at Exact Real-World Size | Free Online Tool
     </title>
+
+    <!-- SEO Meta Tags -->
     <meta
       name="description"
-      content="Free online tool to print any image at exact 1:1 scale. Select an area with known dimensions and print your entire image at perfect real-world size."
+      content="Free online tool to print any image at exact real-world scale (1:1). Upload an image, select an area with known dimensions, and print the entire image at perfect scale."
     />
     <meta
       name="keywords"
-      content="print to scale, 1:1 scale printing, exact size printing, real-world dimensions, image scaling tool"
+      content="print to scale, actual size printing, 1:1 scale, image scaling, real size print, exact size printing, print true size"
     />
     <meta name="author" content="Print to Scale Tool" />
-    <meta name="robots" content="index, follow" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://print-to-scale.com/" />
+    <meta property="og:url" content="https://printtoscale.com/" />
     <meta
       property="og:title"
       content="Print to Scale - Print Images at Exact Real-World Size"
     />
     <meta
       property="og:description"
-      content="Free online tool to print any image at exact 1:1 scale. Select an area with known dimensions and print your entire image at perfect real-world size."
+      content="Free online tool to print any image at exact real-world scale (1:1). Upload, calibrate with known dimensions, and print at perfect scale."
     />
-    <meta
-      property="og:image"
-      content="https://print-to-scale.com/example.png"
-    />
+    <meta property="og:image" content="https://printtoscale.com/example.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://print-to-scale.com/" />
+    <meta property="twitter:url" content="https://printtoscale.com/" />
     <meta
       property="twitter:title"
       content="Print to Scale - Print Images at Exact Real-World Size"
     />
     <meta
       property="twitter:description"
-      content="Free online tool to print any image at exact 1:1 scale. Select an area with known dimensions and print your entire image at perfect real-world size."
+      content="Free online tool to print any image at exact real-world scale (1:1). Upload, calibrate with known dimensions, and print at perfect scale."
     />
     <meta
       property="twitter:image"
-      content="https://print-to-scale.com/example.png"
+      content="https://printtoscale.com/example.png"
     />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://print-to-scale.com/" />
+    <link rel="canonical" href="https://printtoscale.com/" />
 
     <link rel="stylesheet" href="styles.css" />
-
-    <!-- Google Analytics (GA4) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-ND7340LFCL"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-ND7340LFCL");
-    </script>
   </head>
   <body>
-    <div class="container">
-      <header>
+    <header>
+      <div class="container">
         <h1>Print to Scale</h1>
-        <p class="subtitle">
+        <p>
           Upload an image, select an area with known real-world dimensions, and
           print the entire image at perfect 1:1 scale.
         </p>
-      </header>
+      </div>
+    </header>
 
-      <main>
-        <!-- Improved upload section with more prominent CTA -->
-        <section class="upload-section" aria-labelledby="upload-instructions">
-          <h2 id="upload-instructions" class="visually-hidden">Upload Image</h2>
-          <input
-            type="file"
-            id="imageInput"
-            accept="image/*"
-            aria-label="Upload image"
-          />
-          <button id="uploadBtn" class="primary-cta">
-            <svg
-              class="button-icon"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                fill="currentColor"
-                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
-              />
-            </svg>
-            Start by Uploading an Image
-          </button>
-        </section>
-
-        <section
-          class="image-selection-section"
-          aria-labelledby="selection-instructions"
-        >
-          <div id="imageContainer" class="image-container">
-            <div class="image-wrapper">
-              <img
-                id="uploadedImage"
-                alt="Your uploaded image for scale selection"
-              />
-              <div
-                id="selectionBox"
-                class="selection-box"
-                aria-hidden="true"
-              ></div>
-            </div>
-          </div>
-
-          <div class="instructions hidden" id="selectionInstructions">
-            <p>
-              Click and drag on the image to select an area with known
-              dimensions. Good examples include: credit cards (85.6 x 54 mm),
-              rulers, coins, or product dimensions from specifications.
-            </p>
-          </div>
-        </section>
-
-        <section
-          class="dimensions-section"
-          id="dimensionsSection"
-          aria-labelledby="dimensions-heading"
-        >
-          <h2 id="dimensions-heading">
-            Enter the Exact Real-World Dimensions of Your Selection
-          </h2>
-          <div class="dimension-inputs">
-            <div class="input-group">
-              <label for="realWidth">Width (mm):</label>
-              <input
-                type="number"
-                id="realWidth"
-                min="1"
-                step="0.1"
-                aria-describedby="width-instructions"
-              />
-              <span id="width-instructions" class="visually-hidden"
-                >Enter the real-world width in millimeters</span
-              >
-            </div>
-            <div class="input-group">
-              <label for="realHeight">Height (mm):</label>
-              <input
-                type="number"
-                id="realHeight"
-                min="1"
-                step="0.1"
-                aria-describedby="height-instructions"
-              />
-              <span id="height-instructions" class="visually-hidden"
-                >Enter the real-world height in millimeters</span
-              >
-            </div>
-          </div>
-          <button id="scaleBtn" class="icon-button">
-            <svg
-              class="button-icon"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                fill="currentColor"
-                d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 13v9h-9v-9h9zm-2 2h-5v5h5v-5zm12-13v9h-9v-9h9zm-2 2h-5v5h5v-5z"
-              />
-            </svg>
-            Scale Image
-          </button>
-          <p class="scale-note">
-            <!-- Removed instruction text -->
-          </p>
-        </section>
-
-        <section
-          class="result-section"
-          id="resultSection"
-          aria-labelledby="result-heading"
-        >
-          <h2 id="result-heading">Ready to Print (1:1 Scale)</h2>
-          <div class="print-container" id="printContainer">
-            <img
-              id="scaledImage"
-              alt="Your image scaled to exact real-world dimensions"
+    <main class="container">
+      <!-- Improved upload section with more prominent CTA -->
+      <div class="upload-section">
+        <input type="file" id="imageInput" accept="image/*" />
+        <button id="uploadBtn" class="primary-cta">
+          <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
             />
-          </div>
-          <div class="print-actions">
-            <button id="printBtn" class="icon-button">
-              <svg
-                class="button-icon"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  fill="currentColor"
-                  d="M19 8h-14c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11h-8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9h-12v4h12v-4z"
-                />
-              </svg>
-              Print
-            </button>
-            <button id="saveBtn" class="icon-button">
-              <svg
-                class="button-icon"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  fill="currentColor"
-                  d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
-                />
-              </svg>
-              Save Image
-            </button>
-            <p class="print-note">
-              <strong>📝 Printing Instructions:</strong> When printing, please
-              select the "<strong>Fit to page</strong>" option in your print
-              dialog. The small square in the corner is a 10mm calibration
-              reference - if it measures exactly 10mm with a ruler, your entire
-              image is correctly scaled to its real-world size.
-            </p>
-          </div>
-        </section>
-      </main>
+          </svg>
+          Start by Uploading an Image
+        </button>
+      </div>
 
-      <footer>
-        <p class="copyright">
-          &copy;
-          <script>
-            document.write(new Date().getFullYear());
-          </script>
-          Print to Scale - Free Online Tool to Print Images at Exact Size
+      <div id="imageContainer" class="image-container">
+        <div class="image-wrapper">
+          <img
+            id="uploadedImage"
+            alt="Your image will appear here for scale selection"
+          />
+          <div id="selectionBox" class="selection-box"></div>
+        </div>
+      </div>
+
+      <div class="instructions hidden" id="selectionInstructions">
+        <p>
+          Click and drag on the image to select an area with known dimensions.
+          Good examples include: credit cards (85.6 x 54 mm), rulers, coins, or
+          product dimensions from specifications.
         </p>
-      </footer>
-    </div>
+      </div>
 
-    <!-- Structured data for rich results -->
+      <div class="dimensions-section" id="dimensionsSection">
+        <h3>Enter the Exact Real-World Dimensions of Your Selection</h3>
+        <div class="dimension-inputs">
+          <div class="input-group">
+            <label for="realWidth">Width (mm):</label>
+            <input type="number" id="realWidth" min="1" step="0.1" />
+          </div>
+          <div class="input-group">
+            <label for="realHeight">Height (mm):</label>
+            <input type="number" id="realHeight" min="1" step="0.1" />
+          </div>
+        </div>
+        <button id="scaleBtn" class="icon-button">
+          <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24z"
+            />
+            <path
+              fill="currentColor"
+              d="M12 13v9h-9v-9h9zm-2 2h-5v5h5v-5zm12-13v9h-9v-9h9zm-2 2h-5v5h5v-5z"
+            />
+          </svg>
+          Scale Image
+        </button>
+        <p class="scale-note">
+          <!-- Removed instruction text -->
+        </p>
+      </div>
+
+      <div class="result-section" id="resultSection">
+        <h3>Ready to Print (1:1 Scale)</h3>
+        <div class="print-container" id="printContainer">
+          <img
+            id="scaledImage"
+            alt="Your image scaled to exact real-world dimensions"
+          />
+        </div>
+        <div class="print-actions">
+          <button id="printBtn" class="icon-button">
+            <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M19 8h-14c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11h-8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9h-12v4h12v-4z"
+              />
+            </svg>
+            Print
+          </button>
+          <button id="saveBtn" class="icon-button">
+            <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
+              />
+            </svg>
+            Save Image
+          </button>
+          <p class="print-note">
+            <strong>📝 Printing Instructions:</strong> When printing, please
+            select the "<strong>Fit to page</strong>" option in your print
+            dialog. The small square in the corner is a 10mm calibration
+            reference - if it measures exactly 10mm with a ruler, your entire
+            image is correctly scaled to its real-world size.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>&copy; <span id="current-year">2023</span> Print to Scale Tool</p>
+      </div>
+    </footer>
+
+    <!-- Structured Data for SEO -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "Print to Scale",
-        "url": "https://print-to-scale.com/",
-        "description": "Free online tool to print any image at exact 1:1 scale. Select an area with known dimensions and print your entire image at perfect real-world size.",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "All",
+        "url": "https://printtoscale.com/",
+        "description": "Free online tool to print any image at exact real-world scale (1:1). Upload an image, select an area with known dimensions, and print the entire image at perfect scale.",
+        "applicationCategory": "Utility",
+        "operatingSystem": "Any",
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
-        }
+        },
+        "inLanguage": "en",
+        "featureList": [
+          "Print images at exact 1:1 scale",
+          "Use a reference object for calibration",
+          "Supports all standard image formats",
+          "Free to use with no watermarks",
+          "Works on any device with a web browser"
+        ]
       }
     </script>
 

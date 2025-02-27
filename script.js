@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Set current year in footer
+  const currentYearElement = document.getElementById("current-year");
+  if (currentYearElement) {
+    currentYearElement.textContent = new Date().getFullYear();
+  }
+
   // DOM Elements
   const imageInput = document.getElementById("imageInput");
   const uploadBtn = document.getElementById("uploadBtn");
@@ -761,23 +767,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalSelectionWidth = selectionWidth * scaleX;
     const originalSelectionHeight = selectionHeight * scaleY;
 
-    // Use ULTRA_DPI for very high resolution output
-    const pixelsPerMM = PRINT_PIXELS_PER_MM; // Use very high DPI for printing with "Fit to page"
+    // Check if we're on a mobile device
+    const isMobile = window.innerWidth <= 768;
+
+    // Adjust DPI for mobile devices to avoid memory issues
+    const pixelsPerMM = isMobile ? HIGH_PIXELS_PER_MM : PRINT_PIXELS_PER_MM;
 
     // A4 paper dimensions in mm
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
 
-    // Create a high-resolution canvas that matches A4 dimensions exactly
-    // This approach relies on "Fit to page" printing to scale correctly
-    const canvasWidthInPixels = A4_WIDTH_MM * pixelsPerMM;
-    const canvasHeightInPixels = A4_HEIGHT_MM * pixelsPerMM;
+    // For mobile devices, use smaller canvas to avoid memory issues
+    const scaleFactor = isMobile ? 0.5 : 1.0;
+    const canvasWidthInPixels = A4_WIDTH_MM * pixelsPerMM * scaleFactor;
+    const canvasHeightInPixels = A4_HEIGHT_MM * pixelsPerMM * scaleFactor;
 
     // Calculate calibration square size (10mm) in proportion to A4 width
     // 10mm is 1/21 of A4 width (210mm)
-    const calibrationSquareSizeInPixels = 10 * pixelsPerMM;
+    const calibrationSquareSizeInPixels = 10 * pixelsPerMM * scaleFactor;
     console.log(
-      `Calibration square size: ${calibrationSquareSizeInPixels} pixels (10mm at ${PRINT_DPI} DPI)`
+      `Calibration square size: ${calibrationSquareSizeInPixels} pixels (10mm at ${
+        isMobile ? HIGH_DPI : PRINT_DPI
+      } DPI)`
     );
 
     // Calculate the scaling factor to make the selection match the real-world dimensions
@@ -805,7 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Text and calibration area
     // Calculate font size so all three lines fit in 10mm (same as calibration square)
-    const fontSize = Math.max(6, pixelsPerMM * 2.5); // Font size for 3 lines to fit in 10mm
+    const fontSize = Math.max(6, pixelsPerMM * 2.5 * scaleFactor); // Font size for 3 lines to fit in 10mm
     const lineSpacing = fontSize * 1.2; // Spacing between lines
     const calibrationAreaHeight = calibrationSquareSizeInPixels;
 
@@ -818,9 +829,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Create canvas with A4 proportions
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: true,
+    });
 
-    // Set canvas to A4 dimensions at high DPI
+    // Set canvas to A4 dimensions at appropriate DPI
     canvas.width = canvasWidthInPixels;
     canvas.height = canvasHeightInPixels;
 
@@ -837,7 +851,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const squareY = paddingYInPixels;
 
     ctx.strokeStyle = "#000000";
-    ctx.lineWidth = Math.max(2, pixelsPerMM / 4); // Readable but not too thick
+    ctx.lineWidth = Math.max(2, (pixelsPerMM / 4) * scaleFactor); // Readable but not too thick
     ctx.strokeRect(
       squareX,
       squareY,
@@ -869,156 +883,287 @@ document.addEventListener("DOMContentLoaded", () => {
       squareY + fontSize + lineSpacing * 2
     );
 
-    // Draw the image - use multi-step approach for better quality
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d", { alpha: false });
+    // Function for multi-step scaling on mobile
+    function drawWithMultiStepScaling(
+      ctx,
+      img,
+      srcWidth,
+      srcHeight,
+      destX,
+      destY,
+      destWidth,
+      destHeight
+    ) {
+      // Use an intermediate size to avoid memory issues on mobile
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d", { alpha: false });
 
-    // For very large scaling factors, use a three-step approach
-    if (imageScaleFactor > 8) {
-      // First intermediate scale
-      const intermediateScale1 = Math.pow(imageScaleFactor, 1 / 3);
-      const intermediateWidth1 = imageNaturalWidth * intermediateScale1;
-      const intermediateHeight1 = imageNaturalHeight * intermediateScale1;
-
-      tempCanvas.width = intermediateWidth1;
-      tempCanvas.height = intermediateHeight1;
-      tempCtx.imageSmoothingEnabled = true;
-      tempCtx.imageSmoothingQuality = "high";
-
-      // Fill with white background first
-      tempCtx.fillStyle = "#FFFFFF";
-      tempCtx.fillRect(0, 0, intermediateWidth1, intermediateHeight1);
-
-      // First scale
-      tempCtx.drawImage(
-        uploadedImage,
-        0,
-        0,
-        imageNaturalWidth,
-        imageNaturalHeight,
-        0,
-        0,
-        intermediateWidth1,
-        intermediateHeight1
-      );
-
-      // Second intermediate scale
-      const intermediateScale2 = Math.pow(imageScaleFactor, 2 / 3);
-      const intermediateWidth2 = imageNaturalWidth * intermediateScale2;
-      const intermediateHeight2 = imageNaturalHeight * intermediateScale2;
-
-      // Create second temp canvas
-      const tempCanvas2 = document.createElement("canvas");
-      const tempCtx2 = tempCanvas2.getContext("2d", { alpha: false });
-      tempCanvas2.width = intermediateWidth2;
-      tempCanvas2.height = intermediateHeight2;
-      tempCtx2.imageSmoothingEnabled = true;
-      tempCtx2.imageSmoothingQuality = "high";
-
-      // Fill with white background first
-      tempCtx2.fillStyle = "#FFFFFF";
-      tempCtx2.fillRect(0, 0, intermediateWidth2, intermediateHeight2);
-
-      // Second scale
-      tempCtx2.drawImage(
-        tempCanvas,
-        0,
-        0,
-        intermediateWidth1,
-        intermediateHeight1,
-        0,
-        0,
-        intermediateWidth2,
-        intermediateHeight2
-      );
-
-      // Draw the final image centered in the available space
-      ctx.drawImage(
-        tempCanvas2,
-        0,
-        0,
-        intermediateWidth2,
-        intermediateHeight2,
-        imageX,
-        imageY,
-        scaledWidth,
-        scaledHeight
-      );
-    }
-    // For large scaling factors, use a two-step approach
-    else if (imageScaleFactor > 2) {
-      // Use an intermediate size
+      // Calculate intermediate size (square root of scale factor)
       const intermediateScale = Math.sqrt(imageScaleFactor);
-      const intermediateWidth = imageNaturalWidth * intermediateScale;
-      const intermediateHeight = imageNaturalHeight * intermediateScale;
+      const intermediateWidth = srcWidth * intermediateScale;
+      const intermediateHeight = srcHeight * intermediateScale;
 
       tempCanvas.width = intermediateWidth;
       tempCanvas.height = intermediateHeight;
       tempCtx.imageSmoothingEnabled = true;
       tempCtx.imageSmoothingQuality = "high";
 
-      // Fill with white background first
+      // Fill with white background
       tempCtx.fillStyle = "#FFFFFF";
       tempCtx.fillRect(0, 0, intermediateWidth, intermediateHeight);
 
-      // First scale to intermediate size
+      // Draw first pass at intermediate size
       tempCtx.drawImage(
-        uploadedImage,
+        img,
         0,
         0,
-        imageNaturalWidth,
-        imageNaturalHeight,
+        srcWidth,
+        srcHeight,
         0,
         0,
         intermediateWidth,
         intermediateHeight
       );
 
-      // Draw the final image centered in the available space
+      // Draw final pass to destination canvas
       ctx.drawImage(
         tempCanvas,
         0,
         0,
         intermediateWidth,
         intermediateHeight,
-        imageX,
-        imageY,
-        scaledWidth,
-        scaledHeight
+        destX,
+        destY,
+        destWidth,
+        destHeight
       );
-    } else {
-      // For smaller scaling factors, draw directly
-      // Create a white background behind the image
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(imageX, imageY, scaledWidth, scaledHeight);
 
-      ctx.drawImage(
-        uploadedImage,
-        0,
-        0,
-        imageNaturalWidth,
-        imageNaturalHeight,
-        imageX,
-        imageY,
-        scaledWidth,
-        scaledHeight
-      );
+      // Clean up to free memory
+      tempCanvas.width = 1;
+      tempCanvas.height = 1;
     }
+
+    // Draw the image - use appropriate approach based on device
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d", { alpha: false });
+
+    try {
+      // For very large scaling factors or mobile devices, use optimized approach
+      if (isMobile || imageScaleFactor > 8) {
+        // Use our simplified drawing function for mobile
+        drawWithMultiStepScaling(
+          ctx,
+          uploadedImage,
+          imageNaturalWidth,
+          imageNaturalHeight,
+          imageX,
+          imageY,
+          scaledWidth,
+          scaledHeight
+        );
+      }
+      // For very large scaling factors on desktop, use a three-step approach
+      else if (imageScaleFactor > 8) {
+        // First intermediate scale
+        const intermediateScale1 = Math.pow(imageScaleFactor, 1 / 3);
+        const intermediateWidth1 = imageNaturalWidth * intermediateScale1;
+        const intermediateHeight1 = imageNaturalHeight * intermediateScale1;
+
+        tempCanvas.width = intermediateWidth1;
+        tempCanvas.height = intermediateHeight1;
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = "high";
+
+        // Fill with white background first
+        tempCtx.fillStyle = "#FFFFFF";
+        tempCtx.fillRect(0, 0, intermediateWidth1, intermediateHeight1);
+
+        // First scale
+        tempCtx.drawImage(
+          uploadedImage,
+          0,
+          0,
+          imageNaturalWidth,
+          imageNaturalHeight,
+          0,
+          0,
+          intermediateWidth1,
+          intermediateHeight1
+        );
+
+        // Second intermediate scale
+        const intermediateScale2 = Math.pow(imageScaleFactor, 2 / 3);
+        const intermediateWidth2 = imageNaturalWidth * intermediateScale2;
+        const intermediateHeight2 = imageNaturalHeight * intermediateScale2;
+
+        // Create second temp canvas
+        const tempCanvas2 = document.createElement("canvas");
+        const tempCtx2 = tempCanvas2.getContext("2d", { alpha: false });
+        tempCanvas2.width = intermediateWidth2;
+        tempCanvas2.height = intermediateHeight2;
+        tempCtx2.imageSmoothingEnabled = true;
+        tempCtx2.imageSmoothingQuality = "high";
+
+        // Fill with white background first
+        tempCtx2.fillStyle = "#FFFFFF";
+        tempCtx2.fillRect(0, 0, intermediateWidth2, intermediateHeight2);
+
+        // Second scale
+        tempCtx2.drawImage(
+          tempCanvas,
+          0,
+          0,
+          intermediateWidth1,
+          intermediateHeight1,
+          0,
+          0,
+          intermediateWidth2,
+          intermediateHeight2
+        );
+
+        // Draw the final image centered in the available space
+        ctx.drawImage(
+          tempCanvas2,
+          0,
+          0,
+          intermediateWidth2,
+          intermediateHeight2,
+          imageX,
+          imageY,
+          scaledWidth,
+          scaledHeight
+        );
+
+        // Clean up to free memory
+        tempCanvas2.width = 1;
+        tempCanvas2.height = 1;
+      }
+      // For large scaling factors, use a two-step approach
+      else if (imageScaleFactor > 2) {
+        // Use an intermediate size
+        const intermediateScale = Math.sqrt(imageScaleFactor);
+        const intermediateWidth = imageNaturalWidth * intermediateScale;
+        const intermediateHeight = imageNaturalHeight * intermediateScale;
+
+        tempCanvas.width = intermediateWidth;
+        tempCanvas.height = intermediateHeight;
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = "high";
+
+        // Fill with white background first
+        tempCtx.fillStyle = "#FFFFFF";
+        tempCtx.fillRect(0, 0, intermediateWidth, intermediateHeight);
+
+        // First scale to intermediate size
+        tempCtx.drawImage(
+          uploadedImage,
+          0,
+          0,
+          imageNaturalWidth,
+          imageNaturalHeight,
+          0,
+          0,
+          intermediateWidth,
+          intermediateHeight
+        );
+
+        // Draw the final image centered in the available space
+        ctx.drawImage(
+          tempCanvas,
+          0,
+          0,
+          intermediateWidth,
+          intermediateHeight,
+          imageX,
+          imageY,
+          scaledWidth,
+          scaledHeight
+        );
+      } else {
+        // For smaller scaling factors, draw directly
+        // Create a white background behind the image
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(imageX, imageY, scaledWidth, scaledHeight);
+
+        ctx.drawImage(
+          uploadedImage,
+          0,
+          0,
+          imageNaturalWidth,
+          imageNaturalHeight,
+          imageX,
+          imageY,
+          scaledWidth,
+          scaledHeight
+        );
+      }
+    } catch (err) {
+      console.error("Error during image scaling:", err);
+      // Fallback for mobile: use simpler rendering approach
+      try {
+        // Reset canvas and try the simplest approach
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Direct drawing with reduced quality for reliability
+        ctx.imageSmoothingQuality = "medium";
+        ctx.drawImage(
+          uploadedImage,
+          0,
+          0,
+          imageNaturalWidth,
+          imageNaturalHeight,
+          imageX,
+          imageY,
+          scaledWidth,
+          scaledHeight
+        );
+      } catch (fallbackErr) {
+        console.error("Fallback rendering failed:", fallbackErr);
+        alert(
+          "Unable to generate preview. Please try a smaller image or use a desktop device."
+        );
+        return;
+      }
+    }
+
+    // Clean up to free memory
+    tempCanvas.width = 1;
+    tempCanvas.height = 1;
 
     // Use the original image type if possible, fallback to PNG
     let imageType = originalImageType;
-    if (imageType !== "image/png" && imageType !== "image/jpeg") {
+    // For mobile, prefer JPEG for performance
+    if (isMobile) {
+      imageType = "image/jpeg";
+    } else if (imageType !== "image/png" && imageType !== "image/jpeg") {
       imageType = "image/png";
     }
 
-    // Convert to data URL with maximum quality
-    const quality = imageType === "image/jpeg" ? 1.0 : undefined;
-    scaledImage.src = canvas.toDataURL(imageType, quality);
+    // Convert to data URL with appropriate quality
+    // Use lower quality on mobile for better performance
+    const quality =
+      imageType === "image/jpeg" ? (isMobile ? 0.8 : 1.0) : undefined;
 
-    resultSection.style.display = "block";
+    try {
+      scaledImage.src = canvas.toDataURL(imageType, quality);
 
-    // Scroll to result section
-    resultSection.scrollIntoView({ behavior: "smooth" });
+      // Show the result section
+      resultSection.style.display = "block";
+
+      // Scroll to result section
+      // Use setTimeout to allow the browser to render the image first
+      setTimeout(() => {
+        resultSection.scrollIntoView({ behavior: "smooth" });
+        // Update step indicator
+        updateSteps(4);
+      }, 100);
+    } catch (err) {
+      console.error("Error generating preview:", err);
+      alert(
+        "There was an error generating the preview. Please try a smaller image or use a desktop device."
+      );
+    }
   });
 
   // Print functionality
