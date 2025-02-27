@@ -17,6 +17,21 @@ document.addEventListener("DOMContentLoaded", () => {
     "selectionInstructions"
   );
 
+  // Add event listeners for Enter key on dimension inputs
+  realWidthInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      scaleBtn.click();
+    }
+  });
+
+  realHeightInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      scaleBtn.click();
+    }
+  });
+
   // Add visual feedback for progress
   addStepIndicator();
 
@@ -271,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           reader.readAsDataURL(file);
         } else {
-          alert("Please drop an image file (JPEG, PNG, GIF, etc.)");
+          alert("Please select a valid image file (JPEG, PNG, GIF, etc.)");
         }
       });
     }
@@ -726,7 +741,7 @@ document.addEventListener("DOMContentLoaded", () => {
       realWidth <= 0 ||
       realHeight <= 0
     ) {
-      alert("Please enter a valid dimension (greater than 0)");
+      alert("Please enter valid dimensions (numbers greater than 0)");
       return;
     }
 
@@ -843,13 +858,13 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     ctx.fillText(
-      `Selected area: ${realWidth}mm × ${realHeight}mm when printed at 100% scale`,
+      `Selected area: ${realWidth}mm × ${realHeight}mm at 100% scale`,
       squareX + calibrationSquareSizeInPixels + paddingXInPixels / 2,
       squareY + fontSize + lineSpacing
     );
 
     ctx.fillText(
-      "IMPORTANT: Use 'Fit to page' when printing",
+      "IMPORTANT: Select 'Fit to page' when printing",
       squareX + calibrationSquareSizeInPixels + paddingXInPixels / 2,
       squareY + fontSize + lineSpacing * 2
     );
@@ -1025,7 +1040,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const printWindow = window.open("", "_blank");
 
       if (!printWindow) {
-        alert("Please allow pop-ups to print the image.");
+        alert("Please allow pop-ups in your browser to print the image.");
         return;
       }
 
@@ -1125,9 +1140,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="image-container">
             <div class="print-instructions">
               <h3>IMPORTANT PRINTING INSTRUCTIONS</h3>
-              <p>When the print dialog opens, make sure to select <strong>"Fit to page"</strong> or equivalent option.</p>
-              <p>The image has been created specifically for A4 paper size with correct proportions.</p>
-              <p>The 10mm calibration square should print exactly 10mm wide when printed correctly.</p>
+              <p>When the print dialog opens, select <strong>"Fit to page"</strong> or equivalent option.</p>
+              <p>The image has been formatted for A4 paper with the correct proportions.</p>
+              <p>The 10mm calibration square should measure exactly 10mm when printed correctly.</p>
             </div>
             <img src="${finalImageSource}" alt="Print image" />
           </div>
@@ -1162,7 +1177,9 @@ document.addEventListener("DOMContentLoaded", () => {
       printWindow.document.close();
     } catch (error) {
       console.error("Error printing image:", error);
-      alert("There was an error printing the image. Please try again.");
+      alert(
+        "There was an error preparing the image for printing. Please try again."
+      );
     }
   });
 
@@ -1189,7 +1206,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Error saving image:", error);
-      alert("There was an error saving the image. Please try again.");
+      alert(
+        "There was an error saving the image. Please try again or use the Print option."
+      );
     }
   }
 
@@ -1353,8 +1372,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const steps = [
       { label: "Upload Image" },
       { label: "Select Area" },
-      { label: "Set Dimensions" },
-      { label: "Preview & Print" },
+      { label: "Enter Size" },
+      { label: "Print / Save" },
     ];
 
     steps.forEach((stepInfo, index) => {
@@ -1448,7 +1467,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const textDesc = document.createElement("div");
     textDesc.className = "upload-text"; // Add a class for better styling
     textDesc.innerHTML = `
-      <p><strong>Drop an image here</strong> or <strong>click</strong> to begin</p>
+      <p><strong>Drop an image here</strong> or <strong>click to upload</strong></p>
     `;
 
     // Ensure text is centered
