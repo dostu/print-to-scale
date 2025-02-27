@@ -14,9 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const printBtn = document.getElementById("printBtn");
   const saveBtn = document.getElementById("saveBtn");
 
-  // Inject modern styling after DOM elements are initialized
-  injectModernStyling();
-
   // Add visual feedback for progress
   addStepIndicator();
 
@@ -27,6 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (imageInput && imageInput.parentElement) {
     imageInput.parentElement.removeChild(imageInput);
+  }
+
+  // Make the image container visible by default
+  if (imageContainer) {
+    imageContainer.style.display = "flex";
   }
 
   // Create crosshair guide elements
@@ -42,27 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (imageContainer) {
     imageContainer.appendChild(horizontalGuide);
     imageContainer.appendChild(verticalGuide);
-
-    // Add CSS for the guides
-    const style = document.createElement("style");
-    style.textContent = `
-      .selection-guide {
-        position: absolute;
-        pointer-events: none;
-        z-index: 10;
-      }
-      .horizontal-guide {
-        height: 1px;
-        width: 100%;
-        background-color: rgba(255, 0, 0, 0.7);
-      }
-      .vertical-guide {
-        width: 1px;
-        height: 100%;
-        background-color: rgba(255, 0, 0, 0.7);
-      }
-    `;
-    document.head.appendChild(style);
   }
 
   // Variables for selection
@@ -122,6 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
             dimensionsSection.style.display = "none";
             resultSection.style.display = "none";
             hasSelection = false;
+
+            // Show the selection instructions
+            const selectionInstructions = document.getElementById(
+              "selectionInstructions"
+            );
+            if (selectionInstructions) {
+              selectionInstructions.classList.remove("hidden");
+            }
 
             // Get image dimensions for selection
             imageRect = uploadedImage.getBoundingClientRect();
@@ -839,6 +828,14 @@ document.addEventListener("DOMContentLoaded", () => {
             resultSection.style.display = "none";
             hasSelection = false;
 
+            // Show the selection instructions
+            const selectionInstructions = document.getElementById(
+              "selectionInstructions"
+            );
+            if (selectionInstructions) {
+              selectionInstructions.classList.remove("hidden");
+            }
+
             // Get image dimensions for selection
             imageRect = uploadedImage.getBoundingClientRect();
           };
@@ -927,430 +924,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Function to inject modern styling into the page
-  function injectModernStyling() {
-    const styleElement = document.createElement("style");
-    styleElement.textContent = `
-      :root {
-        --primary-color: #4361ee;
-        --primary-light: #4cc9f0;
-        --primary-dark: #3a0ca3;
-        --secondary-color: #f72585;
-        --accent-color: #7209b7;
-        --success-color: #06d6a0;
-        --warning-color: #ffd166;
-        --error-color: #ef476f;
-        --text-dark: #2b2d42;
-        --text-light: #edf2f4;
-        --background-light: #ffffff;
-        --background-off: #f8f9fa;
-        --border-color: #e0e0e0;
-        --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-        --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
-        --shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.05);
-        --border-radius: 8px;
-        --transition-speed: 0.3s;
-      }
-
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        line-height: 1.6;
-        color: var(--text-dark);
-        background-color: var(--background-off);
-        margin: 0;
-        padding: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        transition: all var(--transition-speed) ease;
-      }
-
-      h1, h2, h3, h4, h5, h6 {
-        color: var(--text-dark);
-        margin-bottom: 1rem;
-        font-weight: 600;
-      }
-
-      h1 {
-        font-size: 2.2rem;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        color: var(--primary-dark);
-      }
-
-      .container {
-        background: var(--background-light);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-md);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        transition: all var(--transition-speed) ease;
-      }
-
-      .container:hover {
-        box-shadow: var(--shadow-lg);
-      }
-
-      /* Button styling */
-      button {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-weight: 600;
-        transition: background-color var(--transition-speed), transform var(--transition-speed);
-        box-shadow: var(--shadow-sm);
-        outline: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      button:hover {
-        background-color: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-      }
-
-      button:active {
-        transform: translateY(0);
-      }
-
-      button.action-btn {
-        background-color: var(--secondary-color);
-      }
-
-      button.action-btn:hover {
-        background-color: var(--accent-color);
-      }
-
-      /* Form inputs */
-      input[type="text"], input[type="number"] {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-      }
-
-      input[type="text"]:focus, input[type="number"]:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
-        outline: none;
-      }
-
-      label {
-        font-weight: 600;
-        margin-bottom: 8px;
-        display: block;
-      }
-
-      /* Image container - update for better initial layout */
-      #imageContainer {
-        background-color: var(--background-off);
-        border: 2px dashed var(--border-color);
-        border-radius: var(--border-radius);
-        min-height: 250px;
-        max-height: 70vh;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        transition: all var(--transition-speed) ease;
-        margin-bottom: 2rem;
-        cursor: pointer;
-      }
-
-      #imageContainer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: transparent;
-        z-index: 1;
-        pointer-events: none;
-      }
-
-      #imageContainer:hover {
-        border-color: var(--primary-color);
-        background-color: var(--background-light);
-      }
-
-      #uploadedImage {
-        max-width: 100%;
-        max-height: 70vh;
-        object-fit: contain;
-        border-radius: calc(var(--border-radius) - 4px);
-      }
-
-      /* Hide the default alt text when using our custom message */
-      #uploadedImage[alt] {
-        font-size: 0;
-        color: transparent;
-      }
-
-      /* Selection box */
-      #selectionBox {
-        position: absolute;
-        border: 2px solid var(--secondary-color);
-        background-color: rgba(247, 37, 133, 0.1);
-        pointer-events: none;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
-        z-index: 5;
-      }
-
-      /* Dimensions section */
-      #dimensionsSection {
-        background: var(--background-light);
-        padding: 20px;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-md);
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-        border-left: 5px solid var(--primary-color);
-      }
-
-      /* Result section */
-      #resultSection {
-        text-align: center;
-        padding: 20px;
-      }
-
-      #scaledImage {
-        max-width: 100%;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-lg);
-        margin-bottom: 1rem;
-      }
-
-      /* Selection guides */
-      .selection-guide.horizontal-guide {
-        height: 1px;
-        background-color: var(--secondary-color);
-        box-shadow: 0 0 3px var(--secondary-color);
-      }
-
-      .selection-guide.vertical-guide {
-        width: 1px;
-        background-color: var(--secondary-color);
-        box-shadow: 0 0 3px var(--secondary-color);
-      }
-
-      /* Upload message - enhance for dropzone */
-      .upload-message {
-        position: absolute;
-        text-align: center;
-        max-width: 90%;
-        color: var(--text-dark);
-        opacity: 0.8;
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        background-color: rgba(255, 255, 255, 0.8);
-        border-radius: var(--border-radius);
-        backdrop-filter: blur(2px);
-        transition: all var(--transition-speed);
-        z-index: 3;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .upload-message:hover {
-        opacity: 1;
-        box-shadow: var(--shadow-md);
-      }
-
-      .upload-message svg {
-        opacity: 0.8;
-        margin-bottom: 10px;
-        fill: var(--primary-color);
-        width: 70px;
-        height: 70px;
-        transition: transform 0.3s ease;
-      }
-
-      .dropzone-active .upload-message svg {
-        transform: translateY(-5px);
-        fill: var(--secondary-color);
-      }
-
-      /* Steps indicator */
-      .steps-container {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-        position: relative;
-        padding: 0 20px 20px 20px;
-      }
-
-      .steps-container::before {
-        content: '';
-        position: absolute;
-        top: 15px;
-        left: 20px;
-        right: 20px;
-        height: 4px;
-        background-color: var(--border-color);
-        z-index: 1;
-      }
-
-      .step {
-        position: relative;
-        z-index: 2;
-        background-color: var(--background-light);
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        border: 2px solid var(--border-color);
-        transition: all var(--transition-speed) ease;
-      }
-
-      .step.active {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 5px rgba(67, 97, 238, 0.2);
-      }
-
-      .step.completed {
-        background-color: var(--success-color);
-        color: white;
-        border-color: var(--success-color);
-      }
-
-      .step-label {
-        position: absolute;
-        top: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-dark);
-        width: 100px;
-      }
-
-      /* Description section */
-      .description {
-        text-align: center;
-        margin-bottom: 3.5rem;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      @media print {
-        .steps-container {
-          display: none;
-        }
-      }
-
-      /* Responsive layout */
-      @media (max-width: 768px) {
-        body {
-          padding: 10px;
-        }
-
-        .container {
-          padding: 1rem;
-        }
-
-        h1 {
-          font-size: 1.8rem;
-        }
-
-        #imageContainer {
-          min-height: 200px;
-        }
-
-        .upload-message {
-          max-width: 95%;
-          padding: 15px;
-        }
-
-        .upload-message svg {
-          width: 40px;
-          height: 40px;
-        }
-
-        .steps-container {
-          overflow-x: auto;
-          padding-bottom: 30px;
-        }
-
-        .step-label {
-          width: 80px;
-          font-size: 12px;
-        }
-      }
-    `;
-    document.head.appendChild(styleElement);
-
-    // Add a title to the page if it doesn't exist
-    if (!document.querySelector("h1")) {
-      const title = document.createElement("h1");
-      title.textContent = "Image Scale & Print Tool";
-      document.body.prepend(title);
-    }
-
-    // Wrap sections in containers if needed
-    const sections = [
-      "#imageContainer",
-      "#dimensionsSection",
-      "#resultSection",
-    ];
-    sections.forEach((selector) => {
-      const element = document.querySelector(selector);
-      if (element && !element.parentElement.classList.contains("container")) {
-        const container = document.createElement("div");
-        container.className = "container";
-        element.parentNode.insertBefore(container, element);
-        container.appendChild(element);
-      }
-    });
-
-    // Add icons to buttons
-    styleButtons();
-  }
-
-  // Function to style buttons with icons
-  function styleButtons() {
-    if (uploadBtn) {
-      uploadBtn.innerHTML =
-        '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg> Upload Image';
-    }
-
-    if (scaleBtn) {
-      scaleBtn.innerHTML =
-        '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg> Scale Image';
-      scaleBtn.classList.add("action-btn");
-    }
-
-    if (printBtn) {
-      printBtn.innerHTML =
-        '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5z"/><path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg> Print';
-    }
-
-    if (saveBtn) {
-      saveBtn.innerHTML =
-        '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 1.5A1.5 1.5 0 0 1 10 0h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h6c-.314.418-.5.937-.5 1.5v6h-2a.5.5 0 0 0-.354.854l2.5 2.5a.5.5 0 0 0 .708 0l2.5-2.5A.5.5 0 0 0 10.5 7.5h-2v-6z"/></svg> Save';
-    }
-  }
-
   // Function to create progress step indicators
   function addStepIndicator() {
     const stepsContainer = document.createElement("div");
@@ -1388,10 +961,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSteps(1); // Start with step 1 active
 
     // Add event listeners to update steps
-    uploadedImage.addEventListener("load", () => updateSteps(2));
+    uploadedImage.addEventListener("load", () => {
+      if (uploadedImage.src && uploadedImage.src !== "") {
+        updateSteps(2);
+      }
+    });
+
     selectionBox.addEventListener("mouseup", () => {
       if (hasSelection) updateSteps(3);
     });
+
     scaleBtn.addEventListener("click", () => {
       setTimeout(() => {
         if (scaledImage.src) updateSteps(4);
@@ -1419,6 +998,348 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Add upload message
+  function addUploadMessage() {
+    // Remove any existing upload message
+    const existingMessage = document.querySelector(".upload-message");
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+
+    const uploadMessage = document.createElement("div");
+    uploadMessage.className = "upload-message";
+
+    // Add an upload icon using the SVG file
+    const uploadIcon = document.createElement("div");
+    uploadIcon.className = "upload-icon";
+
+    // Use fetch to load the SVG file
+    fetch("icons/upload.svg")
+      .then((response) => response.text())
+      .then((svgContent) => {
+        uploadIcon.innerHTML = svgContent;
+      })
+      .catch((error) => {
+        console.error("Error loading upload icon:", error);
+        // Fallback icon in case the SVG file fails to load
+        uploadIcon.innerHTML = `<svg width="60" height="60" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+        </svg>`;
+      });
+
+    // Add text description - now mentioning click functionality
+    const textDesc = document.createElement("div");
+    textDesc.innerHTML = `
+      <p><strong>Drop an image here</strong> or <strong>click</strong> to begin</p>
+    `;
+
+    uploadMessage.appendChild(uploadIcon);
+    uploadMessage.appendChild(textDesc);
+
+    if (imageContainer) {
+      imageContainer.appendChild(uploadMessage);
+
+      // Make sure the upload message is visible
+      uploadMessage.style.display = "flex";
+
+      // Hide the alt text by modifying the alt attribute
+      if (uploadedImage) {
+        uploadedImage.alt = "";
+      }
+    }
+  }
+
+  // Function to setup the dropzone functionality
+  function setupDropzone() {
+    if (!imageContainer) return;
+
+    // Create a hidden file input element for the click functionality
+    const hiddenFileInput = document.createElement("input");
+    hiddenFileInput.type = "file";
+    hiddenFileInput.accept = "image/*";
+    hiddenFileInput.style.display = "none";
+    hiddenFileInput.id = "hiddenImageInput";
+    document.body.appendChild(hiddenFileInput);
+
+    // Add file change event listener to the hidden input
+    hiddenFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        originalImageType = file.type || "image/png";
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          uploadedImage.src = event.target.result;
+          uploadedImage.onload = () => {
+            // Ensure the image container is visible
+            imageContainer.style.display = "flex";
+
+            // Hide the upload message
+            const uploadMessage = document.querySelector(".upload-message");
+            if (uploadMessage) {
+              uploadMessage.style.display = "none";
+            }
+
+            // Reset selection
+            selectionBox.style.display = "none";
+            dimensionsSection.style.display = "none";
+            resultSection.style.display = "none";
+            hasSelection = false;
+
+            // Show the selection instructions
+            const selectionInstructions = document.getElementById(
+              "selectionInstructions"
+            );
+            if (selectionInstructions) {
+              selectionInstructions.classList.remove("hidden");
+            }
+
+            // Get image dimensions for selection
+            imageRect = uploadedImage.getBoundingClientRect();
+
+            // Update step indicator
+            updateSteps(2);
+
+            // Add remove button
+            addRemoveButton();
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Add click handler to the image container
+    imageContainer.style.cursor = "pointer";
+    imageContainer.addEventListener("click", (e) => {
+      // Don't trigger file dialog if clicking on the remove button
+      if (e.target.closest(".remove-image-btn")) {
+        console.log("Clicked remove button, not opening file picker");
+        return;
+      }
+
+      // Open file picker if we're not currently selecting and either:
+      // 1. There's no image yet
+      // 2. We clicked the upload message
+      // 3. We don't have an active selection
+      const uploadMessage = document.querySelector(".upload-message");
+      const isClickingUploadMessage = e.target.closest(".upload-message");
+      const hasNoImage = !uploadedImage.src || uploadedImage.src === "";
+
+      console.log("Click on container:", {
+        isSelecting,
+        hasSelection,
+        isClickingUploadMessage: isClickingUploadMessage ? true : false,
+        hasNoImage,
+      });
+
+      if (
+        !isSelecting &&
+        (hasNoImage || isClickingUploadMessage || !hasSelection)
+      ) {
+        console.log("Opening file picker");
+        hiddenFileInput.click();
+      }
+    });
+
+    // Add dragover event listeners
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+      imageContainer.addEventListener(
+        eventName,
+        (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        false
+      );
+    });
+
+    // Add visual feedback when dragging
+    imageContainer.addEventListener(
+      "dragenter",
+      () => {
+        imageContainer.classList.add("dropzone-active");
+      },
+      false
+    );
+
+    imageContainer.addEventListener(
+      "dragover",
+      () => {
+        imageContainer.classList.add("dropzone-active");
+      },
+      false
+    );
+
+    imageContainer.addEventListener(
+      "dragleave",
+      () => {
+        imageContainer.classList.remove("dropzone-active");
+      },
+      false
+    );
+
+    imageContainer.addEventListener(
+      "drop",
+      () => {
+        imageContainer.classList.remove("dropzone-active");
+      },
+      false
+    );
+
+    // Handle dropped files
+    imageContainer.addEventListener(
+      "drop",
+      (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files && files.length > 0) {
+          const file = files[0];
+
+          if (file.type.startsWith("image/")) {
+            originalImageType = file.type || "image/png";
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              uploadedImage.src = event.target.result;
+              uploadedImage.onload = () => {
+                // Ensure the image container is visible
+                imageContainer.style.display = "flex";
+
+                // Hide the upload message
+                const uploadMessage = document.querySelector(".upload-message");
+                if (uploadMessage) {
+                  uploadMessage.style.display = "none";
+                }
+
+                // Reset selection
+                selectionBox.style.display = "none";
+                dimensionsSection.style.display = "none";
+                resultSection.style.display = "none";
+                hasSelection = false;
+
+                // Show the selection instructions
+                const selectionInstructions = document.getElementById(
+                  "selectionInstructions"
+                );
+                if (selectionInstructions) {
+                  selectionInstructions.classList.remove("hidden");
+                }
+
+                // Get image dimensions for selection
+                imageRect = uploadedImage.getBoundingClientRect();
+
+                // Update step indicator
+                updateSteps(2);
+
+                // Add remove button
+                addRemoveButton();
+              };
+            };
+            reader.readAsDataURL(file);
+          } else {
+            alert("Please drop an image file (JPEG, PNG, GIF, etc.)");
+          }
+        }
+      },
+      false
+    );
+  }
+
+  // Function to add a remove button to the image container
+  function addRemoveButton() {
+    // Remove any existing remove button
+    const existingButton = document.querySelector(".remove-image-btn");
+    if (existingButton) {
+      existingButton.remove();
+    }
+
+    // Create the remove button
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-image-btn";
+    removeBtn.innerHTML = "×";
+    removeBtn.title = "Remove image";
+
+    // Add event listener to remove the image
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent opening file picker
+
+      // Clear the image
+      uploadedImage.src = "";
+
+      // Show the upload message
+      const uploadMessage = document.querySelector(".upload-message");
+      if (uploadMessage) {
+        uploadMessage.style.display = "flex";
+      } else {
+        addUploadMessage();
+      }
+
+      // Make sure the image container remains visible
+      imageContainer.style.display = "flex";
+
+      // Reset selection and related elements
+      selectionBox.style.display = "none";
+      dimensionsSection.style.display = "none";
+      resultSection.style.display = "none";
+      hasSelection = false;
+
+      // Hide the selection instructions
+      const selectionInstructions = document.getElementById(
+        "selectionInstructions"
+      );
+      if (selectionInstructions) {
+        selectionInstructions.classList.add("hidden");
+      }
+
+      // Update step indicators
+      document.querySelectorAll(".step-indicator").forEach((step, index) => {
+        if (index === 0) {
+          step.classList.add("active");
+        } else {
+          step.classList.remove("active");
+        }
+      });
+
+      // Remove the button itself
+      removeBtn.remove();
+    });
+
+    // Add to image container
+    imageContainer.appendChild(removeBtn);
+  }
+
+  // Function to update the DOM for a cleaner layout
+  function improveLayout() {
+    // Remove the description completely
+    const existingDescription = document.querySelector(".description");
+    if (existingDescription) {
+      existingDescription.parentElement.removeChild(existingDescription);
+    }
+
+    // Ensure steps container has proper spacing in card
+    const stepsContainer = document.querySelector(".steps-container");
+    if (stepsContainer && !stepsContainer.closest(".container")) {
+      // If steps are not in a container yet, wrap them
+      const container = document.createElement("div");
+      container.className = "container";
+      stepsContainer.parentNode.insertBefore(container, stepsContainer);
+      container.appendChild(stepsContainer);
+    }
+
+    // Ensure the main layout is wrapped properly
+    const mainSections = document.querySelector("body > form");
+    if (
+      mainSections &&
+      !mainSections.parentElement.classList.contains("container")
+    ) {
+      const mainContainer = document.createElement("div");
+      mainContainer.className = "container";
+      mainSections.parentNode.insertBefore(mainContainer, mainSections);
+      mainContainer.appendChild(mainSections);
+    }
+  }
+
+  // Add upload message
   addUploadMessage();
 
   // Setup the dropzone
@@ -1432,357 +1353,3 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadBtn.style.display = "none";
   }
 });
-
-function addUploadMessage() {
-  // Remove any existing upload message
-  const existingMessage = document.querySelector(".upload-message");
-  if (existingMessage) {
-    existingMessage.remove();
-  }
-
-  const uploadMessage = document.createElement("div");
-  uploadMessage.className = "upload-message";
-
-  // Add an upload icon
-  const uploadIcon = document.createElement("div");
-  uploadIcon.innerHTML = `<svg width="60" height="60" viewBox="0 0 16 16">
-    <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
-    <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 13h-8.906C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
-  </svg>`;
-
-  // Add text description - now mentioning click functionality
-  const textDesc = document.createElement("div");
-  textDesc.innerHTML = `
-    <p><strong>Drop an image here</strong> or <strong>click</strong> to begin</p>
-  `;
-
-  uploadMessage.appendChild(uploadIcon);
-  uploadMessage.appendChild(textDesc);
-
-  if (imageContainer) {
-    imageContainer.appendChild(uploadMessage);
-
-    // Hide the alt text by modifying the alt attribute
-    if (uploadedImage) {
-      uploadedImage.alt = "";
-    }
-  }
-}
-
-// Function to setup the dropzone functionality
-function setupDropzone() {
-  if (!imageContainer) return;
-
-  // Create a hidden file input element for the click functionality
-  const hiddenFileInput = document.createElement("input");
-  hiddenFileInput.type = "file";
-  hiddenFileInput.accept = "image/*";
-  hiddenFileInput.style.display = "none";
-  hiddenFileInput.id = "hiddenImageInput";
-  document.body.appendChild(hiddenFileInput);
-
-  // Add file change event listener to the hidden input
-  hiddenFileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      originalImageType = file.type || "image/png";
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        uploadedImage.src = event.target.result;
-        uploadedImage.onload = () => {
-          imageContainer.style.display = "block";
-
-          // Hide the upload message
-          const uploadMessage = document.querySelector(".upload-message");
-          if (uploadMessage) {
-            uploadMessage.style.display = "none";
-          }
-
-          // Reset selection
-          selectionBox.style.display = "none";
-          dimensionsSection.style.display = "none";
-          resultSection.style.display = "none";
-          hasSelection = false;
-
-          // Get image dimensions for selection
-          imageRect = uploadedImage.getBoundingClientRect();
-
-          // Update step indicator
-          updateSteps(2);
-
-          // Add remove button
-          addRemoveButton();
-        };
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // Add click handler to the image container
-  imageContainer.style.cursor = "pointer";
-  imageContainer.addEventListener("click", (e) => {
-    // Don't trigger file dialog if clicking on the remove button
-    if (e.target.closest(".remove-image-btn")) {
-      console.log("Clicked remove button, not opening file picker");
-      return;
-    }
-
-    // Open file picker if we're not currently selecting and either:
-    // 1. There's no image yet
-    // 2. We clicked the upload message
-    // 3. We don't have an active selection
-    const uploadMessage = document.querySelector(".upload-message");
-    const isClickingUploadMessage = e.target.closest(".upload-message");
-    const hasNoImage = !uploadedImage.src || uploadedImage.src === "";
-
-    console.log("Click on container:", {
-      isSelecting,
-      hasSelection,
-      isClickingUploadMessage: isClickingUploadMessage ? true : false,
-      hasNoImage,
-    });
-
-    if (
-      !isSelecting &&
-      (hasNoImage || isClickingUploadMessage || !hasSelection)
-    ) {
-      console.log("Opening file picker");
-      hiddenFileInput.click();
-    }
-  });
-
-  // Add dragover event listeners
-  ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
-    imageContainer.addEventListener(
-      eventName,
-      (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      },
-      false
-    );
-  });
-
-  // Add visual feedback when dragging
-  imageContainer.addEventListener(
-    "dragenter",
-    () => {
-      imageContainer.classList.add("dropzone-active");
-    },
-    false
-  );
-
-  imageContainer.addEventListener(
-    "dragover",
-    () => {
-      imageContainer.classList.add("dropzone-active");
-    },
-    false
-  );
-
-  imageContainer.addEventListener(
-    "dragleave",
-    () => {
-      imageContainer.classList.remove("dropzone-active");
-    },
-    false
-  );
-
-  imageContainer.addEventListener(
-    "drop",
-    () => {
-      imageContainer.classList.remove("dropzone-active");
-    },
-    false
-  );
-
-  // Handle dropped files
-  imageContainer.addEventListener(
-    "drop",
-    (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-
-      if (files && files.length > 0) {
-        const file = files[0];
-
-        if (file.type.startsWith("image/")) {
-          originalImageType = file.type || "image/png";
-
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            uploadedImage.src = event.target.result;
-            uploadedImage.onload = () => {
-              imageContainer.style.display = "block";
-
-              // Hide the upload message
-              const uploadMessage = document.querySelector(".upload-message");
-              if (uploadMessage) {
-                uploadMessage.style.display = "none";
-              }
-
-              // Reset selection
-              selectionBox.style.display = "none";
-              dimensionsSection.style.display = "none";
-              resultSection.style.display = "none";
-              hasSelection = false;
-
-              // Get image dimensions for selection
-              imageRect = uploadedImage.getBoundingClientRect();
-
-              // Update step indicator
-              updateSteps(2);
-
-              // Add remove button
-              addRemoveButton();
-            };
-          };
-          reader.readAsDataURL(file);
-        } else {
-          alert("Please drop an image file (JPEG, PNG, GIF, etc.)");
-        }
-      }
-    },
-    false
-  );
-
-  // Add dropzone styles
-  const style = document.createElement("style");
-  style.textContent = `
-    .dropzone-active {
-      border: 3px dashed var(--secondary-color) !important;
-      background-color: rgba(247, 37, 133, 0.05) !important;
-      transform: scale(1.02);
-      box-shadow: var(--shadow-lg);
-    }
-
-    #imageContainer {
-      transition: all 0.3s ease;
-    }
-
-    #imageContainer:hover .upload-message {
-      opacity: 1;
-    }
-
-    .remove-image-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(239, 71, 111, 0.9);
-      color: white;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 20;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      opacity: 0.8;
-      transition: all 0.2s ease;
-      border: none;
-      font-size: 16px;
-    }
-
-    .remove-image-btn:hover {
-      opacity: 1;
-      transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-// Function to add a remove button to the image container
-function addRemoveButton() {
-  // Remove any existing remove button
-  const existingButton = document.querySelector(".remove-image-btn");
-  if (existingButton) {
-    existingButton.remove();
-  }
-
-  // Create the remove button
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "remove-image-btn";
-  removeBtn.innerHTML = "×";
-  removeBtn.title = "Remove image";
-
-  // Add event listener to remove the image
-  removeBtn.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevent opening file picker
-
-    // Clear the image
-    uploadedImage.src = "";
-
-    // Show the upload message
-    const uploadMessage = document.querySelector(".upload-message");
-    if (uploadMessage) {
-      uploadMessage.style.display = "flex";
-    } else {
-      addUploadMessage();
-    }
-
-    // Reset selection and related elements
-    selectionBox.style.display = "none";
-    dimensionsSection.style.display = "none";
-    resultSection.style.display = "none";
-    hasSelection = false;
-
-    // Reset step indicators
-    updateSteps(1);
-
-    // Remove the button itself
-    removeBtn.remove();
-  });
-
-  // Add to image container
-  imageContainer.appendChild(removeBtn);
-}
-
-// Function to update the DOM for a cleaner layout
-function improveLayout() {
-  // Remove the description completely
-  const existingDescription = document.querySelector(".description");
-  if (existingDescription) {
-    existingDescription.parentElement.removeChild(existingDescription);
-  }
-
-  // Ensure steps container has proper spacing in card
-  const stepsContainer = document.querySelector(".steps-container");
-  if (stepsContainer && stepsContainer.closest(".container")) {
-    const container = stepsContainer.closest(".container");
-    if (container) {
-      container.style.paddingTop = "20px";
-    }
-  } else if (stepsContainer) {
-    // If steps are not in a container yet, wrap them
-    const container = document.createElement("div");
-    container.className = "container";
-    container.style.paddingTop = "20px";
-    stepsContainer.parentNode.insertBefore(container, stepsContainer);
-    container.appendChild(stepsContainer);
-  }
-
-  // Ensure the main layout is wrapped properly
-  const mainSections = document.querySelector("body > form");
-  if (
-    mainSections &&
-    !mainSections.parentElement.classList.contains("container")
-  ) {
-    const mainContainer = document.createElement("div");
-    mainContainer.className = "container";
-    mainSections.parentNode.insertBefore(mainContainer, mainSections);
-    mainContainer.appendChild(mainSections);
-  }
-
-  // Make sure buttons have proper spacing
-  const buttons = document.querySelectorAll("button");
-  buttons.forEach((button) => {
-    if (!button.style.marginRight) {
-      button.style.marginRight = "10px";
-    }
-  });
-}
