@@ -157,6 +157,12 @@ button.action-btn:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 5;
+}
+
+/* When an image is loaded, hide upload-related elements */
+.image-wrapper img[src]:not([src=""]) + .upload-message {
+  display: none !important;
 }
 
 #uploadedImage {
@@ -174,6 +180,8 @@ button.action-btn:hover {
   transform: none;
   object-fit: contain;
   border-radius: calc(var(--border-radius) - 4px);
+  position: relative;
+  z-index: 5;
 }
 
 /* Hide the default alt text when using our custom message */
@@ -184,13 +192,13 @@ button.action-btn:hover {
 
 .selection-box {
   position: absolute;
-  border: 2px solid var(--secondary-color);
+  border: 1px solid rgba(0, 0, 0, 0.9);
   background-color: rgba(231, 76, 60, 0.2);
   pointer-events: none;
   display: none;
   transform: none;
   z-index: 10;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+  box-shadow: none;
 }
 
 .instructions {
@@ -330,21 +338,52 @@ input[type="text"]:focus {
 .selection-guide {
   position: absolute;
   pointer-events: none;
-  z-index: 10;
+  z-index: 20;
 }
 
 .horizontal-guide {
   height: 1px;
   width: 100%;
-  background-color: var(--secondary-color);
-  box-shadow: 0 0 3px var(--secondary-color);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .vertical-guide {
   width: 1px;
   height: 100%;
-  background-color: var(--secondary-color);
-  box-shadow: 0 0 3px var(--secondary-color);
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Pulse animation for guides */
+@keyframes guidePulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.guide-pulse {
+  animation: guidePulse 1.5s infinite ease-in-out;
+}
+
+/* Crosshair center point pulse animation - no longer used */
+@keyframes dotPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
 }
 
 /* Upload message */
@@ -365,6 +404,8 @@ input[type="text"]:focus {
   right: 0;
   bottom: 0;
   margin: auto;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .upload-icon {
@@ -662,13 +703,55 @@ body.printing .print-container {
   }
 
   .steps-container {
-    overflow-x: auto;
-    padding-bottom: 30px;
+    display: flex;
+    justify-content: space-around;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 0 5px 45px 5px;
+    max-width: 100%;
+    gap: 0;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+
+  .steps-container::before {
+    display: block;
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 12%;
+    right: 12%;
+    height: 3px;
+    background-color: var(--border-color);
+    z-index: 1;
+  }
+
+  .step {
+    position: relative;
+    margin: 0;
+    transform: scale(0.85);
+    flex-shrink: 0;
+    z-index: 2;
+    background-color: var(--background-light);
   }
 
   .step-label {
-    width: 80px;
-    font-size: 12px;
+    width: auto;
+    min-width: 60px;
+    max-width: 60px;
+    font-size: 9px;
+    line-height: 1.1;
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 38px;
+    white-space: normal;
+    overflow: hidden;
+    word-break: break-word;
   }
 
   .print-actions {
@@ -749,4 +832,31 @@ body.printing .print-container {
 
 .button-icon {
   margin-right: 8px;
+}
+
+/* Prevent scrolling during selection on mobile */
+body.selecting {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Enhance selection box for touch devices */
+@media (max-width: 768px) {
+  .selection-box {
+    border-width: 3px; /* Thicker border for better visibility on touch devices */
+  }
+
+  .selection-guide {
+    display: none; /* Hide guides on mobile devices as they're less useful with touch */
+  }
+}
+
+/* Additional cursor styling for selection */
+#uploadedImage[src]:not([src=""]):not([src$="#"]) {
+  cursor: crosshair !important;
+}
+
+/* Image container cursor when hovering over it with image loaded */
+.image-container:has(#uploadedImage[src]:not([src=""]):not([src$="#"])) {
+  cursor: crosshair !important;
 }

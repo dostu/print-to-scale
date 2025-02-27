@@ -44,23 +44,80 @@ document.addEventListener("DOMContentLoaded", () => {
     addUploadMessage();
   }
 
+  // Function to update cursor styles
+  function updateCursorStyles() {
+    if (
+      uploadedImage.src &&
+      uploadedImage.src !== "" &&
+      !uploadedImage.src.endsWith("#")
+    ) {
+      // Apply crosshair to the image
+      uploadedImage.style.cursor = "crosshair";
+
+      // Apply crosshair to the image container (for background clicks that start selection)
+      imageContainer.style.cursor = "crosshair";
+
+      // Make sure upload message has pointer cursor if visible
+      const uploadMessage = document.querySelector(".upload-message");
+      if (uploadMessage) {
+        uploadMessage.style.cursor = "pointer";
+      }
+
+      // Ensure the replace button has pointer cursor
+      const replaceBtn = document.querySelector(".replace-image-btn");
+      if (replaceBtn) {
+        replaceBtn.style.cursor = "pointer";
+      }
+    } else {
+      // If no image, use pointer for the container (to indicate it's clickable for upload)
+      imageContainer.style.cursor = "pointer";
+      uploadedImage.style.cursor = "default";
+    }
+  }
+
   // Function to setup the dropzone functionality
   function setupDropzone() {
     const dropzone = imageContainer; // Use imageContainer directly as the dropzone
     const fileInput = document.getElementById("imageInput");
 
+    // Add crosshair cursor to the image for selection
+    uploadedImage.addEventListener("load", updateCursorStyles);
+
+    // Also update cursor styles immediately in case an image is already loaded
+    updateCursorStyles();
+
     // Add click functionality to the container to open file input
     if (imageContainer) {
       imageContainer.addEventListener("click", (e) => {
-        // Don't trigger if we're clicking a button or the image when it's already loaded
-        if (
-          e.target.tagName === "BUTTON" ||
-          (uploadedImage.src && e.target === uploadedImage)
-        ) {
+        // Don't trigger if we're clicking a button
+        if (e.target.tagName === "BUTTON") {
           return;
         }
 
-        // Make sure we have a file input element to click
+        // Check if an image is already uploaded
+        if (
+          uploadedImage.src &&
+          uploadedImage.src !== "" &&
+          !uploadedImage.src.endsWith("#")
+        ) {
+          // If clicking on the image, let the mousedown handler take care of it
+          if (e.target === uploadedImage) {
+            return;
+          }
+
+          // If we have an image but clicked elsewhere in the container,
+          // simulate a click on the image to start a new selection
+          const clickEvent = new MouseEvent("mousedown", {
+            bubbles: true,
+            cancelable: true,
+            clientX: e.clientX,
+            clientY: e.clientY,
+          });
+          uploadedImage.dispatchEvent(clickEvent);
+          return;
+        }
+
+        // If no image uploaded yet, open the file picker
         if (fileInput) {
           fileInput.click();
         } else {
@@ -178,8 +235,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const reader = new FileReader();
           reader.onload = (event) => {
+            // First ensure the image will be shown
+            uploadedImage.style.display = "block";
+            uploadedImage.style.zIndex = "5";
+
+            // Then set the source
             uploadedImage.src = event.target.result;
             uploadedImage.onload = () => {
+              // Redundant but kept for safety
+              uploadedImage.style.display = "block";
+
               // Show the image container
               imageContainer.style.display = "flex";
 
@@ -236,6 +301,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let hasSelection = false;
   let originalImageType = "image/png"; // Default image type
 
+  // Hide the uploaded image initially to prevent alt text from showing
+  uploadedImage.style.display = "none";
+
   // Standard DPI for screens (96 DPI is standard for most displays)
   const STANDARD_DPI = 96;
   // Higher DPI options for better quality printing
@@ -254,114 +322,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const ULTRA_PIXELS_PER_MM = ULTRA_DPI / MM_TO_INCH;
   const PRINT_PIXELS_PER_MM = PRINT_DPI / MM_TO_INCH;
 
+  // Function to get the image dimensions from the DOM
+  function updateImageRect() {
+    imageRect = uploadedImage.getBoundingClientRect();
+  }
+
   // Prevent default image dragging behavior
   uploadedImage.addEventListener("dragstart", (e) => {
     e.preventDefault();
   });
 
-  // Keep the imageInput change event in case it's needed for other functionality
-  if (imageInput) {
-    imageInput.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        originalImageType = file.type || "image/png"; // Store the original image type
+  // ===== MOBILE TOUCH EVENTS =====
 
-        const reader = new FileReader();
+  // Touch start event for selection on mobile devices
+  uploadedImage.addEventListener("touchstart", (e) => {
+    e.preventDefault(); // Prevent default behavior like scrolling
 
-        reader.onload = (event) => {
-          uploadedImage.src = event.target.result;
-          uploadedImage.onload = () => {
-            imageContainer.style.display = "block";
-
-            // Hide the upload message when an image is loaded
-            const uploadMessage = document.querySelector(".upload-message");
-            if (uploadMessage) {
-              uploadMessage.style.display = "none";
-            }
-
-            // Reset selection
-            selectionBox.style.display = "none";
-            dimensionsSection.style.display = "none";
-            resultSection.style.display = "none";
-            hasSelection = false;
-
-            // Show the selection instructions
-            selectionInstructions.classList.remove("hidden");
-
-            // Get image dimensions for selection
-            imageRect = uploadedImage.getBoundingClientRect();
-          };
-        };
-
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
-  // Show and position guidelines on mouse move over the image (before selection starts)
-  uploadedImage.addEventListener("mousemove", (e) => {
-    if (hasSelection || isSelecting) return;
-
-    // Get fresh image position measurements
-    const imageRect = uploadedImage.getBoundingClientRect();
-
-    // Calculate cursor position relative to the page
-    const cursorPageX = e.clientX;
-    const cursorPageY = e.clientY;
-
-    // Position horizontal guide directly at cursor Y position
-    horizontalGuide.style.display = "block";
-    horizontalGuide.style.top = `${cursorPageY}px`;
-    horizontalGuide.style.left = "0";
-
-    // Position vertical guide directly at cursor X position
-    verticalGuide.style.display = "block";
-    verticalGuide.style.left = `${cursorPageX}px`;
-    verticalGuide.style.top = "0";
-
-    // Adjust guide positions to be relative to the document (fixed position)
-    horizontalGuide.style.position = "fixed";
-    verticalGuide.style.position = "fixed";
-  });
-
-  // Hide guidelines when mouse leaves the image
-  uploadedImage.addEventListener("mouseleave", () => {
-    if (!isSelecting) {
-      horizontalGuide.style.display = "none";
-      verticalGuide.style.display = "none";
-    }
-  });
-
-  // Hide guidelines when selection starts
-  uploadedImage.addEventListener("mousedown", (e) => {
+    // Hide guides when selection starts
     horizontalGuide.style.display = "none";
     verticalGuide.style.display = "none";
 
-    // Prevent default browser behavior
-    e.preventDefault();
-
     // Only start a new selection if we don't have one already
-    // or if the user is clicking outside the current selection
     if (!hasSelection) {
       isSelecting = true;
 
+      // Add 'selecting' class to body to prevent scrolling
+      document.body.classList.add("selecting");
+
+      // Get fresh dimensions
+      updateImageRect();
+
       // Get the image wrapper element
       const imageWrapper = uploadedImage.parentElement;
-
-      // Get exact positions
-      imageRect = uploadedImage.getBoundingClientRect();
       const wrapperRect = imageWrapper.getBoundingClientRect();
 
       // Calculate offset of image within wrapper
       const imageOffsetLeft = imageRect.left - wrapperRect.left;
       const imageOffsetTop = imageRect.top - wrapperRect.top;
 
-      // Calculate cursor position relative to the image
-      startX = e.clientX - imageRect.left;
-      startY = e.clientY - imageRect.top;
+      // Get the first touch point
+      const touch = e.touches[0];
 
-      // Initialize selection box at cursor position
-      // Setting position relative to the wrapper since the selection box is a child of the wrapper
+      // Calculate touch position relative to the image
+      startX = touch.clientX - imageRect.left;
+      startY = touch.clientY - imageRect.top;
+
+      // Initialize selection box at touch position
       selectionBox.style.left = `${startX + imageOffsetLeft}px`;
       selectionBox.style.top = `${startY + imageOffsetTop}px`;
       selectionBox.style.width = "0";
@@ -370,26 +376,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.addEventListener("mousemove", (e) => {
+  // Touch move event for selection resizing on mobile devices
+  uploadedImage.addEventListener("touchmove", (e) => {
     if (!isSelecting) return;
+    e.preventDefault(); // Prevent scrolling during selection
 
     // Get fresh measurements
+    updateImageRect();
     const imageWrapper = uploadedImage.parentElement;
-    const currentImageRect = uploadedImage.getBoundingClientRect();
-    const currentWrapperRect = imageWrapper.getBoundingClientRect();
+    const wrapperRect = imageWrapper.getBoundingClientRect();
 
     // Calculate offset of image within wrapper
-    const imageOffsetLeft = currentImageRect.left - currentWrapperRect.left;
-    const imageOffsetTop = currentImageRect.top - currentWrapperRect.top;
+    const imageOffsetLeft = imageRect.left - wrapperRect.left;
+    const imageOffsetTop = imageRect.top - wrapperRect.top;
+
+    // Get the first touch point
+    const touch = e.touches[0];
 
     // Calculate current position relative to the image
     const currentX = Math.min(
-      Math.max(0, e.clientX - currentImageRect.left),
-      currentImageRect.width
+      Math.max(0, touch.clientX - imageRect.left),
+      imageRect.width
     );
     const currentY = Math.min(
-      Math.max(0, e.clientY - currentImageRect.top),
-      currentImageRect.height
+      Math.max(0, touch.clientY - imageRect.top),
+      imageRect.height
     );
 
     // Calculate width and height
@@ -407,11 +418,15 @@ document.addEventListener("DOMContentLoaded", () => {
     selectionBox.style.height = `${selectionHeight}px`;
   });
 
-  document.addEventListener("mouseup", () => {
+  // Touch end event to finish selection on mobile devices
+  uploadedImage.addEventListener("touchend", (e) => {
     if (isSelecting) {
       isSelecting = false;
 
-      // Show dimensions section if selection is made
+      // Remove 'selecting' class from body to re-enable scrolling
+      document.body.classList.remove("selecting");
+
+      // Show dimensions section if selection is made and has reasonable size
       if (selectionWidth > 10 && selectionHeight > 10) {
         hasSelection = true;
         dimensionsSection.style.display = "block";
@@ -420,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
         realWidthInput.value = "";
         realHeightInput.value = "";
 
-        // Enable both input fields (no longer using dimension mode)
+        // Enable both input fields
         realWidthInput.disabled = false;
         realHeightInput.disabled = false;
 
@@ -429,47 +444,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Scroll to dimensions section
         dimensionsSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // If selection is too small, cancel it
+        selectionBox.style.display = "none";
       }
     }
   });
 
-  // Add a way to clear the selection and make a new one
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && hasSelection) {
-      // Clear the selection
-      selectionBox.style.display = "none";
-      hasSelection = false;
+  // Cancel touch selection if needed
+  uploadedImage.addEventListener("touchcancel", (e) => {
+    if (isSelecting) {
+      isSelecting = false;
+      // Remove 'selecting' class from body to re-enable scrolling
+      document.body.classList.remove("selecting");
     }
   });
 
-  // Allow clicking outside the selection to start a new one
-  document.addEventListener("click", (e) => {
-    if (hasSelection && e.target === uploadedImage) {
+  // ===== DESKTOP MOUSE EVENTS =====
+
+  // Mouse down event to start selection on desktop
+  uploadedImage.addEventListener("mousedown", (e) => {
+    e.preventDefault(); // Prevent default behavior
+
+    // Hide guides when selection starts
+    horizontalGuide.style.display = "none";
+    verticalGuide.style.display = "none";
+
+    // If we already have a selection, check if the click is outside the current selection area
+    if (hasSelection) {
       // Get fresh measurements
+      updateImageRect();
       const imageWrapper = uploadedImage.parentElement;
-      const currentImageRect = uploadedImage.getBoundingClientRect();
-      const currentWrapperRect = imageWrapper.getBoundingClientRect();
+      const wrapperRect = imageWrapper.getBoundingClientRect();
 
       // Calculate offset of image within wrapper
-      const imageOffsetLeft = currentImageRect.left - currentWrapperRect.left;
-      const imageOffsetTop = currentImageRect.top - currentWrapperRect.top;
+      const imageOffsetLeft = imageRect.left - wrapperRect.left;
+      const imageOffsetTop = imageRect.top - wrapperRect.top;
 
       // Calculate click position relative to image
-      const clickX = e.clientX - currentImageRect.left;
-      const clickY = e.clientY - currentImageRect.top;
+      const clickX = e.clientX - imageRect.left;
+      const clickY = e.clientY - imageRect.top;
 
-      // Get selection box position relative to the image (not the wrapper)
+      // Get selection box position relative to the image
       const selStyle = window.getComputedStyle(selectionBox);
-      const selLeftStr = selStyle.left;
-      const selTopStr = selStyle.top;
-      const selWidthStr = selStyle.width;
-      const selHeightStr = selStyle.height;
-
-      // Extract numeric values
-      const selLeft = parseFloat(selLeftStr) - imageOffsetLeft;
-      const selTop = parseFloat(selTopStr) - imageOffsetTop;
-      const selRight = selLeft + parseFloat(selWidthStr);
-      const selBottom = selTop + parseFloat(selHeightStr);
+      const selLeft = parseFloat(selStyle.left) - imageOffsetLeft;
+      const selTop = parseFloat(selStyle.top) - imageOffsetTop;
+      const selRight = selLeft + parseFloat(selStyle.width);
+      const selBottom = selTop + parseFloat(selStyle.height);
 
       // Check if click is outside the current selection
       if (
@@ -478,10 +499,198 @@ document.addEventListener("DOMContentLoaded", () => {
         clickY < selTop ||
         clickY > selBottom
       ) {
-        // Clear the selection and allow a new one
-        selectionBox.style.display = "none";
-        hasSelection = false;
+        // Cancel the current selection
+        cancelSelection();
+
+        // Now allow a new selection to begin immediately
+        isSelecting = true;
+      } else {
+        // Click is inside existing selection, don't start a new one
+        return;
       }
+    } else {
+      // No existing selection, so start a new one
+      isSelecting = true;
+    }
+
+    // From here, the selection process continues for both cases
+
+    // Get fresh dimensions
+    updateImageRect();
+
+    // Get the image wrapper element
+    const imageWrapper = uploadedImage.parentElement;
+    const wrapperRect = imageWrapper.getBoundingClientRect();
+
+    // Calculate offset of image within wrapper
+    const imageOffsetLeft = imageRect.left - wrapperRect.left;
+    const imageOffsetTop = imageRect.top - wrapperRect.top;
+
+    // Calculate mouse position relative to the image
+    startX = e.clientX - imageRect.left;
+    startY = e.clientY - imageRect.top;
+
+    // Initialize selection box at mouse position
+    selectionBox.style.left = `${startX + imageOffsetLeft}px`;
+    selectionBox.style.top = `${startY + imageOffsetTop}px`;
+    selectionBox.style.width = "0";
+    selectionBox.style.height = "0";
+    selectionBox.style.display = "block";
+  });
+
+  // Mouse move event for resizing selection on desktop
+  document.addEventListener("mousemove", (e) => {
+    // Show selection guides when hovering over image or the image container (if not selecting)
+    if (
+      !isSelecting &&
+      !hasSelection &&
+      (e.target === uploadedImage ||
+        (e.target === imageContainer &&
+          uploadedImage.src &&
+          uploadedImage.src !== "" &&
+          !uploadedImage.src.endsWith("#")))
+    ) {
+      // Get cursor position relative to the page
+      const cursorPageX = e.clientX;
+      const cursorPageY = e.clientY;
+
+      // Position guides with improved visibility
+      horizontalGuide.style.display = "block";
+      horizontalGuide.style.top = `${cursorPageY}px`;
+      horizontalGuide.style.left = "0";
+      horizontalGuide.style.width = "100%";
+
+      verticalGuide.style.display = "block";
+      verticalGuide.style.left = `${cursorPageX}px`;
+      verticalGuide.style.top = "0";
+      verticalGuide.style.height = "100%";
+
+      horizontalGuide.style.position = "fixed";
+      verticalGuide.style.position = "fixed";
+
+      // Add pulse animation class if not already added
+      if (!horizontalGuide.classList.contains("guide-pulse")) {
+        horizontalGuide.classList.add("guide-pulse");
+        verticalGuide.classList.add("guide-pulse");
+      }
+    }
+
+    // Handle selection resizing
+    if (!isSelecting) return;
+
+    // For active selection, keep guides visible at the cursor position
+    if (isSelecting) {
+      const cursorPageX = e.clientX;
+      const cursorPageY = e.clientY;
+
+      horizontalGuide.style.display = "block";
+      horizontalGuide.style.top = `${cursorPageY}px`;
+      verticalGuide.style.display = "block";
+      verticalGuide.style.left = `${cursorPageX}px`;
+    }
+
+    // Get fresh measurements
+    updateImageRect();
+    const imageWrapper = uploadedImage.parentElement;
+    const wrapperRect = imageWrapper.getBoundingClientRect();
+
+    // Calculate offset of image within wrapper
+    const imageOffsetLeft = imageRect.left - wrapperRect.left;
+    const imageOffsetTop = imageRect.top - wrapperRect.top;
+
+    // Calculate current position relative to the image
+    const currentX = Math.min(
+      Math.max(0, e.clientX - imageRect.left),
+      imageRect.width
+    );
+    const currentY = Math.min(
+      Math.max(0, e.clientY - imageRect.top),
+      imageRect.height
+    );
+
+    // Calculate width and height
+    selectionWidth = Math.abs(currentX - startX);
+    selectionHeight = Math.abs(currentY - startY);
+
+    // Calculate top-left position
+    const selectionLeft = Math.min(startX, currentX);
+    const selectionTop = Math.min(startY, currentY);
+
+    // Update selection box with position relative to the wrapper
+    selectionBox.style.left = `${selectionLeft + imageOffsetLeft}px`;
+    selectionBox.style.top = `${selectionTop + imageOffsetTop}px`;
+    selectionBox.style.width = `${selectionWidth}px`;
+    selectionBox.style.height = `${selectionHeight}px`;
+  });
+
+  // Mouse up event to finish selection on desktop
+  document.addEventListener("mouseup", (e) => {
+    if (isSelecting) {
+      isSelecting = false;
+
+      // Show dimensions section if selection is made and has reasonable size
+      if (selectionWidth > 10 && selectionHeight > 10) {
+        hasSelection = true;
+        dimensionsSection.style.display = "block";
+
+        // Clear any previous input values
+        realWidthInput.value = "";
+        realHeightInput.value = "";
+
+        // Enable both input fields
+        realWidthInput.disabled = false;
+        realHeightInput.disabled = false;
+
+        // Update step indicator
+        updateSteps(3);
+
+        // Scroll to dimensions section
+        dimensionsSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // If selection is too small, cancel it
+        selectionBox.style.display = "none";
+      }
+    }
+  });
+
+  // Hide guides when mouse leaves the image or container
+  uploadedImage.addEventListener("mouseleave", (e) => {
+    // Only hide guides if we're not actively selecting
+    if (!isSelecting) {
+      horizontalGuide.style.display = "none";
+      verticalGuide.style.display = "none";
+    }
+  });
+
+  // Also check for mouse leaving the container
+  imageContainer.addEventListener("mouseleave", (e) => {
+    // Only hide guides if we're not actively selecting
+    if (!isSelecting) {
+      horizontalGuide.style.display = "none";
+      verticalGuide.style.display = "none";
+    }
+  });
+
+  // Function to cancel the current selection
+  function cancelSelection() {
+    selectionBox.style.display = "none";
+    hasSelection = false;
+    dimensionsSection.style.display = "none";
+    updateSteps(2); // Go back to "Select Area" step
+  }
+
+  // Clear selection on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && hasSelection) {
+      cancelSelection();
+    }
+  });
+
+  // Add a tap handler to cancel selection on mobile
+  uploadedImage.addEventListener("click", (e) => {
+    // For mobile: check if it's a simple tap rather than the end of a selection
+    if (hasSelection && selectionWidth < 5 && selectionHeight < 5) {
+      cancelSelection();
     }
   });
 
@@ -1000,6 +1209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.onload = (event) => {
           uploadedImage.src = event.target.result;
           uploadedImage.onload = () => {
+            uploadedImage.style.display = "block"; // Ensure the image is visible
             imageContainer.style.display = "block";
             // Reset selection
             selectionBox.style.display = "none";
@@ -1024,34 +1234,71 @@ document.addEventListener("DOMContentLoaded", () => {
       // Prevent default browser behavior
       e.preventDefault();
 
-      // Only start a new selection if we don't have one already
-      // or if the user is clicking outside the current selection
-      if (!hasSelection) {
-        isSelecting = true;
-
-        // Get the image wrapper element
+      // If we already have a selection, check if the click is outside the current selection area
+      if (hasSelection) {
+        // Get fresh measurements
+        updateImageRect();
         const imageWrapper = uploadedImage.parentElement;
-
-        // Get exact positions
-        imageRect = uploadedImage.getBoundingClientRect();
         const wrapperRect = imageWrapper.getBoundingClientRect();
 
         // Calculate offset of image within wrapper
         const imageOffsetLeft = imageRect.left - wrapperRect.left;
         const imageOffsetTop = imageRect.top - wrapperRect.top;
 
-        // Calculate cursor position relative to the image
-        startX = e.clientX - imageRect.left;
-        startY = e.clientY - imageRect.top;
+        // Calculate click position relative to image
+        const clickX = e.clientX - imageRect.left;
+        const clickY = e.clientY - imageRect.top;
 
-        // Initialize selection box at cursor position
-        // Setting position relative to the wrapper since the selection box is a child of the wrapper
-        selectionBox.style.left = `${startX + imageOffsetLeft}px`;
-        selectionBox.style.top = `${startY + imageOffsetTop}px`;
-        selectionBox.style.width = "0";
-        selectionBox.style.height = "0";
-        selectionBox.style.display = "block";
+        // Get selection box position relative to the image
+        const selStyle = window.getComputedStyle(selectionBox);
+        const selLeft = parseFloat(selStyle.left) - imageOffsetLeft;
+        const selTop = parseFloat(selStyle.top) - imageOffsetTop;
+        const selRight = selLeft + parseFloat(selStyle.width);
+        const selBottom = selTop + parseFloat(selStyle.height);
+
+        // Check if click is outside the current selection
+        if (
+          clickX < selLeft ||
+          clickX > selRight ||
+          clickY < selTop ||
+          clickY > selBottom
+        ) {
+          // Cancel the current selection
+          cancelSelection();
+
+          // Now allow a new selection to begin immediately
+          isSelecting = true;
+        } else {
+          // Click is inside existing selection, don't start a new one
+          return;
+        }
+      } else {
+        // No existing selection, so start a new one
+        isSelecting = true;
       }
+
+      // Get the image wrapper element
+      const imageWrapper = uploadedImage.parentElement;
+
+      // Get exact positions
+      imageRect = uploadedImage.getBoundingClientRect();
+      const wrapperRect = imageWrapper.getBoundingClientRect();
+
+      // Calculate offset of image within wrapper
+      const imageOffsetLeft = imageRect.left - wrapperRect.left;
+      const imageOffsetTop = imageRect.top - wrapperRect.top;
+
+      // Calculate cursor position relative to the image
+      startX = e.clientX - imageRect.left;
+      startY = e.clientY - imageRect.top;
+
+      // Initialize selection box at cursor position
+      // Setting position relative to the wrapper since the selection box is a child of the wrapper
+      selectionBox.style.left = `${startX + imageOffsetLeft}px`;
+      selectionBox.style.top = `${startY + imageOffsetTop}px`;
+      selectionBox.style.width = "0";
+      selectionBox.style.height = "0";
+      selectionBox.style.display = "block";
     });
 
     // Re-attach save button listener
@@ -1230,7 +1477,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function removeUploadMessage() {
     const uploadMessage = document.querySelector(".upload-message");
     if (uploadMessage) {
-      uploadMessage.remove();
+      uploadMessage.remove(); // Completely remove the element
+    }
+
+    // Ensure the uploaded image is visible
+    if (uploadedImage) {
+      uploadedImage.style.display = "block";
+      uploadedImage.style.zIndex = "5";
     }
   }
 
@@ -1287,7 +1540,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const reader = new FileReader();
         reader.onload = (event) => {
+          // First, ensure the image will be shown
+          uploadedImage.style.display = "block";
+          uploadedImage.style.zIndex = "5";
+
+          // Then set the source
           uploadedImage.src = event.target.result;
+
           uploadedImage.onload = () => {
             // Show the image container
             imageContainer.style.display = "flex";
