@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const scaledImage = document.getElementById("scaledImage");
   const printBtn = document.getElementById("printBtn");
   const saveBtn = document.getElementById("saveBtn");
+  const selectionInstructions = document.getElementById(
+    "selectionInstructions"
+  );
 
   // Add visual feedback for progress
   addStepIndicator();
@@ -22,13 +25,191 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadBtn.parentElement.removeChild(uploadBtn);
   }
 
-  if (imageInput && imageInput.parentElement) {
-    imageInput.parentElement.removeChild(imageInput);
+  // Don't remove the file input element - instead, create one if it doesn't exist
+  let fileInput = document.getElementById("imageInput");
+  if (!fileInput) {
+    fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.id = "imageInput";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none"; // Hide it visually
+    document.body.appendChild(fileInput);
   }
 
-  // Make the image container visible by default
+  // Make the image container visible by default with the upload message
   if (imageContainer) {
     imageContainer.style.display = "flex";
+
+    // Make sure we add the upload message immediately
+    addUploadMessage();
+  }
+
+  // Function to setup the dropzone functionality
+  function setupDropzone() {
+    const dropzone = imageContainer; // Use imageContainer directly as the dropzone
+    const fileInput = document.getElementById("imageInput");
+
+    // Add click functionality to the container to open file input
+    if (imageContainer) {
+      imageContainer.addEventListener("click", (e) => {
+        // Don't trigger if we're clicking a button or the image when it's already loaded
+        if (
+          e.target.tagName === "BUTTON" ||
+          (uploadedImage.src && e.target === uploadedImage)
+        ) {
+          return;
+        }
+
+        // Make sure we have a file input element to click
+        if (fileInput) {
+          fileInput.click();
+        } else {
+          console.error("File input element not found");
+        }
+      });
+    }
+
+    // Create replace image button
+    function addReplaceButton() {
+      // Remove any existing replace buttons first
+      const existingButton = document.querySelector(".replace-image-btn");
+      if (existingButton) {
+        existingButton.remove();
+      }
+
+      const replaceBtn = document.createElement("button");
+      replaceBtn.className = "replace-image-btn";
+      replaceBtn.innerHTML = `
+        <svg class="button-icon" width="16" height="16" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 10h7V3l-2.35 3.35z"/>
+        </svg>
+        Replace Image
+      `;
+      replaceBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent event from bubbling to imageContainer
+        if (fileInput) {
+          fileInput.click();
+        }
+      });
+
+      imageContainer.appendChild(replaceBtn);
+    }
+
+    // Handle file input change event
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          originalImageType = file.type || "image/png";
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            uploadedImage.src = event.target.result;
+            uploadedImage.onload = () => {
+              // Show the image container
+              imageContainer.style.display = "flex";
+
+              // Remove the upload message
+              removeUploadMessage();
+
+              // Show the selection instructions
+              selectionInstructions.classList.remove("hidden");
+
+              // Reset selection state
+              selectionBox.style.display = "none";
+              dimensionsSection.style.display = "none";
+              resultSection.style.display = "none";
+
+              // Get image dimensions for selection
+              imageRect = uploadedImage.getBoundingClientRect();
+
+              // Update step indicator
+              updateSteps(2);
+
+              // Add the replace button
+              addReplaceButton();
+            };
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Setup drag and drop functionality
+    if (dropzone) {
+      // Prevent default behavior for drag events
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(
+          eventName,
+          (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          },
+          false
+        );
+      });
+
+      // Add visual feedback for drag events
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropzone.addEventListener(
+          eventName,
+          () => {
+            dropzone.classList.add("drag-over");
+          },
+          false
+        );
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropzone.addEventListener(
+          eventName,
+          () => {
+            dropzone.classList.remove("drag-over");
+          },
+          false
+        );
+      });
+
+      // Handle file drop
+      dropzone.addEventListener("drop", (e) => {
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          originalImageType = file.type || "image/png";
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            uploadedImage.src = event.target.result;
+            uploadedImage.onload = () => {
+              // Show the image container
+              imageContainer.style.display = "flex";
+
+              // Remove the upload message
+              removeUploadMessage();
+
+              // Show the selection instructions
+              selectionInstructions.classList.remove("hidden");
+
+              // Reset selection state
+              selectionBox.style.display = "none";
+              dimensionsSection.style.display = "none";
+              resultSection.style.display = "none";
+
+              // Get image dimensions for selection
+              imageRect = uploadedImage.getBoundingClientRect();
+
+              // Update step indicator
+              updateSteps(2);
+
+              // Add the replace button
+              addReplaceButton();
+            };
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert("Please drop an image file (JPEG, PNG, GIF, etc.)");
+        }
+      });
+    }
   }
 
   // Create crosshair guide elements
@@ -105,12 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
             hasSelection = false;
 
             // Show the selection instructions
-            const selectionInstructions = document.getElementById(
-              "selectionInstructions"
-            );
-            if (selectionInstructions) {
-              selectionInstructions.classList.remove("hidden");
-            }
+            selectionInstructions.classList.remove("hidden");
 
             // Get image dimensions for selection
             imageRect = uploadedImage.getBoundingClientRect();
@@ -247,6 +423,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Enable both input fields (no longer using dimension mode)
         realWidthInput.disabled = false;
         realHeightInput.disabled = false;
+
+        // Update step indicator to mark "Select Area" as complete
+        updateSteps(3);
 
         // Scroll to dimensions section
         dimensionsSection.scrollIntoView({ behavior: "smooth" });
@@ -829,12 +1008,7 @@ document.addEventListener("DOMContentLoaded", () => {
             hasSelection = false;
 
             // Show the selection instructions
-            const selectionInstructions = document.getElementById(
-              "selectionInstructions"
-            );
-            if (selectionInstructions) {
-              selectionInstructions.classList.remove("hidden");
-            }
+            selectionInstructions.classList.remove("hidden");
 
             // Get image dimensions for selection
             imageRect = uploadedImage.getBoundingClientRect();
@@ -949,12 +1123,18 @@ document.addEventListener("DOMContentLoaded", () => {
       stepsContainer.appendChild(step);
     });
 
-    // Insert at the top of the page, after the title
-    const title = document.querySelector("h1");
-    if (title) {
-      title.after(stepsContainer);
+    // Insert after the paragraph that follows the title, not directly after the title
+    const introText = document.querySelector(".container > p");
+    if (introText) {
+      introText.after(stepsContainer);
     } else {
-      document.body.prepend(stepsContainer);
+      // Fallback to inserting after title if paragraph not found
+      const title = document.querySelector("h1");
+      if (title) {
+        title.after(stepsContainer);
+      } else {
+        document.body.prepend(stepsContainer);
+      }
     }
 
     // Update active step based on current state
@@ -1008,29 +1188,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadMessage = document.createElement("div");
     uploadMessage.className = "upload-message";
 
-    // Add an upload icon using the SVG file
+    // Add an upload icon using inline SVG
     const uploadIcon = document.createElement("div");
     uploadIcon.className = "upload-icon";
 
-    // Use fetch to load the SVG file
-    fetch("icons/upload.svg")
-      .then((response) => response.text())
-      .then((svgContent) => {
-        uploadIcon.innerHTML = svgContent;
-      })
-      .catch((error) => {
-        console.error("Error loading upload icon:", error);
-        // Fallback icon in case the SVG file fails to load
-        uploadIcon.innerHTML = `<svg width="60" height="60" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-        </svg>`;
-      });
+    // Use inline SVG directly instead of fetch
+    uploadIcon.innerHTML = `<svg width="60" height="60" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+    </svg>`;
 
     // Add text description - now mentioning click functionality
     const textDesc = document.createElement("div");
+    textDesc.className = "upload-text"; // Add a class for better styling
     textDesc.innerHTML = `
       <p><strong>Drop an image here</strong> or <strong>click</strong> to begin</p>
     `;
+
+    // Ensure text is centered
+    textDesc.style.textAlign = "center";
+    textDesc.style.width = "100%";
 
     uploadMessage.appendChild(uploadIcon);
     uploadMessage.appendChild(textDesc);
@@ -1038,8 +1214,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (imageContainer) {
       imageContainer.appendChild(uploadMessage);
 
-      // Make sure the upload message is visible
+      // Make sure the upload message is visible and centered
       uploadMessage.style.display = "flex";
+      uploadMessage.style.justifyContent = "center";
+      uploadMessage.style.alignItems = "center";
 
       // Hide the alt text by modifying the alt attribute
       if (uploadedImage) {
@@ -1048,20 +1226,61 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Function to setup the dropzone functionality
-  function setupDropzone() {
-    if (!imageContainer) return;
+  // Remove upload message
+  function removeUploadMessage() {
+    const uploadMessage = document.querySelector(".upload-message");
+    if (uploadMessage) {
+      uploadMessage.remove();
+    }
+  }
 
-    // Create a hidden file input element for the click functionality
-    const hiddenFileInput = document.createElement("input");
-    hiddenFileInput.type = "file";
-    hiddenFileInput.accept = "image/*";
-    hiddenFileInput.style.display = "none";
-    hiddenFileInput.id = "hiddenImageInput";
-    document.body.appendChild(hiddenFileInput);
+  // Handle remove button click
+  function handleRemoveButtonClick() {
+    const imageContainer = document.getElementById("imageContainer");
+    const uploadedImage = document.getElementById("uploadedImage");
+    const canvas = document.getElementById("canvas");
+    const selectionInstructions = document.getElementById(
+      "selectionInstructions"
+    );
 
-    // Add file change event listener to the hidden input
-    hiddenFileInput.addEventListener("change", (e) => {
+    // Hide image and canvas
+    uploadedImage.src = "";
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
+
+    // Hide instructions
+    selectionInstructions.classList.add("hidden");
+
+    // Show upload message
+    addUploadMessage();
+
+    // Clear any selection
+    if (window.selection) {
+      window.selection = null;
+    }
+
+    // Update display
+    imageContainer.style.display = "none";
+    document.getElementById("outputSection").style.display = "none";
+    document.getElementById("dimensionsSection").style.display = "none";
+  }
+
+  // Initialize the application - this should be at the end
+  addUploadMessage();
+  setupDropzone();
+
+  // Make sure the file input has a change event listener
+  const fileInputElement = document.getElementById("imageInput");
+  if (fileInputElement) {
+    // Remove any existing event listeners by cloning and replacing the element
+    const newFileInput = fileInputElement.cloneNode(true);
+    // Ensure the input is hidden
+    newFileInput.style.display = "none";
+    fileInputElement.parentNode.replaceChild(newFileInput, fileInputElement);
+
+    // Add the change event listener to the new element
+    newFileInput.addEventListener("change", (e) => {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         originalImageType = file.type || "image/png";
@@ -1070,28 +1289,19 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.onload = (event) => {
           uploadedImage.src = event.target.result;
           uploadedImage.onload = () => {
-            // Ensure the image container is visible
+            // Show the image container
             imageContainer.style.display = "flex";
 
-            // Hide the upload message
-            const uploadMessage = document.querySelector(".upload-message");
-            if (uploadMessage) {
-              uploadMessage.style.display = "none";
-            }
+            // Remove the upload message
+            removeUploadMessage();
 
-            // Reset selection
+            // Show the selection instructions
+            selectionInstructions.classList.remove("hidden");
+
+            // Reset selection state
             selectionBox.style.display = "none";
             dimensionsSection.style.display = "none";
             resultSection.style.display = "none";
-            hasSelection = false;
-
-            // Show the selection instructions
-            const selectionInstructions = document.getElementById(
-              "selectionInstructions"
-            );
-            if (selectionInstructions) {
-              selectionInstructions.classList.remove("hidden");
-            }
 
             // Get image dimensions for selection
             imageRect = uploadedImage.getBoundingClientRect();
@@ -1099,257 +1309,27 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update step indicator
             updateSteps(2);
 
-            // Add remove button
-            addRemoveButton();
+            // Add the replace button
+            addReplaceButton();
           };
         };
         reader.readAsDataURL(file);
       }
     });
-
-    // Add click handler to the image container
-    imageContainer.style.cursor = "pointer";
-    imageContainer.addEventListener("click", (e) => {
-      // Don't trigger file dialog if clicking on the remove button
-      if (e.target.closest(".remove-image-btn")) {
-        console.log("Clicked remove button, not opening file picker");
-        return;
-      }
-
-      // Open file picker if we're not currently selecting and either:
-      // 1. There's no image yet
-      // 2. We clicked the upload message
-      // 3. We don't have an active selection
-      const uploadMessage = document.querySelector(".upload-message");
-      const isClickingUploadMessage = e.target.closest(".upload-message");
-      const hasNoImage = !uploadedImage.src || uploadedImage.src === "";
-
-      console.log("Click on container:", {
-        isSelecting,
-        hasSelection,
-        isClickingUploadMessage: isClickingUploadMessage ? true : false,
-        hasNoImage,
-      });
-
-      if (
-        !isSelecting &&
-        (hasNoImage || isClickingUploadMessage || !hasSelection)
-      ) {
-        console.log("Opening file picker");
-        hiddenFileInput.click();
-      }
-    });
-
-    // Add dragover event listeners
-    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
-      imageContainer.addEventListener(
-        eventName,
-        (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        },
-        false
-      );
-    });
-
-    // Add visual feedback when dragging
-    imageContainer.addEventListener(
-      "dragenter",
-      () => {
-        imageContainer.classList.add("dropzone-active");
-      },
-      false
-    );
-
-    imageContainer.addEventListener(
-      "dragover",
-      () => {
-        imageContainer.classList.add("dropzone-active");
-      },
-      false
-    );
-
-    imageContainer.addEventListener(
-      "dragleave",
-      () => {
-        imageContainer.classList.remove("dropzone-active");
-      },
-      false
-    );
-
-    imageContainer.addEventListener(
-      "drop",
-      () => {
-        imageContainer.classList.remove("dropzone-active");
-      },
-      false
-    );
-
-    // Handle dropped files
-    imageContainer.addEventListener(
-      "drop",
-      (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-
-        if (files && files.length > 0) {
-          const file = files[0];
-
-          if (file.type.startsWith("image/")) {
-            originalImageType = file.type || "image/png";
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              uploadedImage.src = event.target.result;
-              uploadedImage.onload = () => {
-                // Ensure the image container is visible
-                imageContainer.style.display = "flex";
-
-                // Hide the upload message
-                const uploadMessage = document.querySelector(".upload-message");
-                if (uploadMessage) {
-                  uploadMessage.style.display = "none";
-                }
-
-                // Reset selection
-                selectionBox.style.display = "none";
-                dimensionsSection.style.display = "none";
-                resultSection.style.display = "none";
-                hasSelection = false;
-
-                // Show the selection instructions
-                const selectionInstructions = document.getElementById(
-                  "selectionInstructions"
-                );
-                if (selectionInstructions) {
-                  selectionInstructions.classList.remove("hidden");
-                }
-
-                // Get image dimensions for selection
-                imageRect = uploadedImage.getBoundingClientRect();
-
-                // Update step indicator
-                updateSteps(2);
-
-                // Add remove button
-                addRemoveButton();
-              };
-            };
-            reader.readAsDataURL(file);
-          } else {
-            alert("Please drop an image file (JPEG, PNG, GIF, etc.)");
-          }
-        }
-      },
-      false
-    );
   }
 
-  // Function to add a remove button to the image container
-  function addRemoveButton() {
-    // Remove any existing remove button
-    const existingButton = document.querySelector(".remove-image-btn");
-    if (existingButton) {
-      existingButton.remove();
-    }
-
-    // Create the remove button
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-image-btn";
-    removeBtn.innerHTML = "×";
-    removeBtn.title = "Remove image";
-
-    // Add event listener to remove the image
-    removeBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // Prevent opening file picker
-
-      // Clear the image
-      uploadedImage.src = "";
-
-      // Show the upload message
-      const uploadMessage = document.querySelector(".upload-message");
-      if (uploadMessage) {
-        uploadMessage.style.display = "flex";
-      } else {
-        addUploadMessage();
+  // Check if an image is already loaded and add replace button if needed
+  if (
+    uploadedImage &&
+    uploadedImage.src &&
+    uploadedImage.src !== "" &&
+    !uploadedImage.src.endsWith("#")
+  ) {
+    // Add the replace button after a short delay to ensure the DOM is fully ready
+    setTimeout(() => {
+      if (typeof addReplaceButton === "function") {
+        addReplaceButton();
       }
-
-      // Make sure the image container remains visible
-      imageContainer.style.display = "flex";
-
-      // Reset selection and related elements
-      selectionBox.style.display = "none";
-      dimensionsSection.style.display = "none";
-      resultSection.style.display = "none";
-      hasSelection = false;
-
-      // Hide the selection instructions
-      const selectionInstructions = document.getElementById(
-        "selectionInstructions"
-      );
-      if (selectionInstructions) {
-        selectionInstructions.classList.add("hidden");
-      }
-
-      // Update step indicators
-      document.querySelectorAll(".step-indicator").forEach((step, index) => {
-        if (index === 0) {
-          step.classList.add("active");
-        } else {
-          step.classList.remove("active");
-        }
-      });
-
-      // Remove the button itself
-      removeBtn.remove();
-    });
-
-    // Add to image container
-    imageContainer.appendChild(removeBtn);
-  }
-
-  // Function to update the DOM for a cleaner layout
-  function improveLayout() {
-    // Remove the description completely
-    const existingDescription = document.querySelector(".description");
-    if (existingDescription) {
-      existingDescription.parentElement.removeChild(existingDescription);
-    }
-
-    // Ensure steps container has proper spacing in card
-    const stepsContainer = document.querySelector(".steps-container");
-    if (stepsContainer && !stepsContainer.closest(".container")) {
-      // If steps are not in a container yet, wrap them
-      const container = document.createElement("div");
-      container.className = "container";
-      stepsContainer.parentNode.insertBefore(container, stepsContainer);
-      container.appendChild(stepsContainer);
-    }
-
-    // Ensure the main layout is wrapped properly
-    const mainSections = document.querySelector("body > form");
-    if (
-      mainSections &&
-      !mainSections.parentElement.classList.contains("container")
-    ) {
-      const mainContainer = document.createElement("div");
-      mainContainer.className = "container";
-      mainSections.parentNode.insertBefore(mainContainer, mainSections);
-      mainContainer.appendChild(mainSections);
-    }
-  }
-
-  // Add upload message
-  addUploadMessage();
-
-  // Setup the dropzone
-  setupDropzone();
-
-  // Improve overall layout
-  improveLayout();
-
-  // Hide the traditional upload button since we're using drag-and-drop
-  if (uploadBtn) {
-    uploadBtn.style.display = "none";
+    }, 100);
   }
 });
