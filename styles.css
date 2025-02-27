@@ -72,7 +72,7 @@ p {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 button {
@@ -115,15 +115,15 @@ button.action-btn:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 250px;
+  min-height: 180px;
   border: 2px dashed #ccc;
   border-radius: 5px;
-  margin: 1rem 0;
+  margin: 15px 0;
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
-  padding: 20px;
+  padding: 15px;
 }
 
 .image-container.drag-over {
@@ -212,14 +212,14 @@ button.action-btn:hover {
 }
 
 .dimensions-section {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   display: none;
   background: var(--background-light);
   padding: 20px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
-  margin-top: 2rem;
-  border-left: 5px solid var(--primary-color);
+  margin-top: 1.5rem;
+  border-left: none;
 }
 
 h3 {
@@ -287,11 +287,11 @@ input[type="text"]:focus {
 .print-container {
   margin: 20px auto;
   text-align: center;
-  border: 1px solid var(--border-color);
-  padding: 10px;
+  border: none;
+  padding: 0;
   background-color: white;
   overflow: visible;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 #scaledImage {
@@ -299,8 +299,9 @@ input[type="text"]:focus {
   height: auto;
   display: block;
   margin: 0 auto;
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
 }
 
 .print-actions {
@@ -442,9 +443,9 @@ input[type="text"]:focus {
 .steps-container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   position: relative;
-  padding: 0 20px 20px 20px;
+  padding: 0 20px 15px 20px;
 }
 
 .steps-container::before {
@@ -865,21 +866,26 @@ body.selecting {
 header {
   text-align: center;
   padding: 1rem 0;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #eaeaea;
+  background-color: transparent;
+  border-bottom: none;
 }
 
 main {
-  min-height: calc(100vh - 160px); /* Account for header and footer */
-  padding: 1.5rem 0;
+  padding: 1rem 0;
 }
 
 footer {
   text-align: center;
   padding: 1rem 0;
-  background-color: #f9f9f9;
-  border-top: 1px solid #eaeaea;
-  margin-top: 2rem;
+  background-color: transparent;
+  border-top: none;
+  margin-top: 0;
   font-size: 0.9rem;
   color: #666;
+}
+
+footer .container {
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0;
 }
