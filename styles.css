@@ -196,9 +196,10 @@ button.action-btn:hover {
   background-color: rgba(231, 76, 60, 0.2);
   pointer-events: none;
   display: none;
-  transform: none;
   z-index: 10;
   box-shadow: none;
+  box-sizing: border-box;
+  transform: translate(1px, 1px);
 }
 
 .instructions {
@@ -766,6 +767,12 @@ body.printing .print-container {
     width: 100%;
     max-width: 250px;
   }
+
+  .selection-box {
+    border-width: 1px;
+    background-color: rgba(231, 76, 60, 0.3);
+    transform: translate(1px, 1px);
+  }
 }
 
 /* Icon button styles */
@@ -838,17 +845,6 @@ body.printing .print-container {
 body.selecting {
   overflow: hidden;
   touch-action: none;
-}
-
-/* Enhance selection box for touch devices */
-@media (max-width: 768px) {
-  .selection-box {
-    border-width: 3px; /* Thicker border for better visibility on touch devices */
-  }
-
-  .selection-guide {
-    display: none; /* Hide guides on mobile devices as they're less useful with touch */
-  }
 }
 
 /* Additional cursor styling for selection */
